@@ -102,11 +102,32 @@ readable, indexable and keyboard-navigable with WebGL switched off. There is a
 skip link, a visible focus ring, and reduced motion is honoured at the CSS level
 as well as by tier detection.
 
-## Deploying to STRATO
+## Deploying
 
-`npm run build` emits a fully static `dist/`. Upload its **contents** to the
-document root (`vite.config.js` sets `base: '/'`; change it if you serve from a
-subfolder). No server-side runtime is required.
+`npm run build` emits a fully static `dist/`. No server-side runtime is
+required anywhere.
+
+**STRATO** — upload the **contents** of `dist/` to the document root.
+`vite.config.js` sets `base: '/'`; change it if you serve from a subfolder.
+
+**Netlify, drag and drop** —
+
+```bash
+bash scripts/pack-netlify.sh      # → bluetensturm-netlify.zip
+```
+
+Drop the zip on <https://app.netlify.com/drop>. `index.html` sits at the zip
+root, which is what Netlify Drop expects, and a `_headers` file travels with it
+carrying the caching and security headers (Drop ignores build settings, so they
+cannot come from `netlify.toml`).
+
+**Netlify, connected to Git** — `netlify.toml` at the repo root already declares
+the build command, publish directory, Node version and the same headers. Point
+Netlify at the repo and it needs no further configuration.
+
+Fingerprinted files in `/assets` are cached immutably for a year; `index.html`
+is always revalidated, so a deploy cannot leave browsers asking for hashed
+assets that no longer exist.
 
 The contact form has no backend by design: submitting composes a pre-filled mail
 to `info@bluetensturm.com` in the visitor's own client. To move to a real
