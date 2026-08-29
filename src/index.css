@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  body {
+    @apply bg-night font-body text-chalk antialiased;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: rgba(255, 122, 89, 0.32);
+  }
+
+  :focus-visible {
+    outline: 2px solid #ffc15e;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /* Frosted panel — the 2D twin of the WebGL glass panels. */
+  .glass {
+    background: rgba(245, 243, 240, 0.08);
+    border: 1px solid rgba(245, 243, 240, 0.12);
+    backdrop-filter: blur(14px) saturate(130%);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+  }
+
+  .glass-strong {
+    background: rgba(245, 243, 240, 0.14);
+    border: 1px solid rgba(245, 243, 240, 0.18);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+  }
+
+  .btn-bloom {
+    @apply inline-flex items-center gap-2 rounded-full bg-bloom px-7 py-3.5
+           font-display text-[0.95rem] font-semibold text-night
+           shadow-bloom transition-all duration-300;
+  }
+
+  .btn-bloom:hover {
+    @apply shadow-bloom-lg;
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/20
+           px-7 py-3.5 font-display text-[0.95rem] font-semibold text-chalk
+           transition-colors duration-300;
+  }
+
+  .btn-ghost:hover {
+    @apply border-amber/70 text-amber;
+  }
+
+  .eyebrow {
+    @apply font-display text-[0.7rem] font-semibold uppercase tracking-[0.28em]
+           text-chalk/45;
+  }
+
+  .gradient-text {
+    background: linear-gradient(100deg, #ff7a59 0%, #ffc15e 60%, #6e5bff 130%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@layer utilities {
+  /* Vignette that keeps DOM copy legible over the bright parts of the canvas. */
+  .copy-scrim {
+    background: radial-gradient(
+      120% 90% at 20% 50%,
+      rgba(18, 20, 28, 0.9) 0%,
+      rgba(18, 20, 28, 0.72) 45%,
+      rgba(18, 20, 28, 0) 100%
+    );
+  }
+}

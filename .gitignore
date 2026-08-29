@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+.vite/
+
+# Generated character assets — fetched with scripts/fetch-assets.sh.
+# The site runs without them, so they stay out of git rather than bloating
+# the repo with video. Delete these three lines if you'd rather commit them.
+public/assets/*.glb
+public/assets/*.mp4
+public/assets/*.png
