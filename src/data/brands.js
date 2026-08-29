@@ -14,13 +14,10 @@
 
 export const BRANDS = []
 
-// Shown in the heading above the ring. Update if the count changes.
-export const BRAND_COUNT_LABEL = '45+'
-
 export const BRAND_RING_COPY = {
-  heading: '45+ International Brands. One Person’s Playbook.',
+  heading: 'Mittelstand leaders. Challenger brands. Nine markets.',
   subtext:
-    'Before Blüten Sturm, our founder led marketing strategy, design, video advertising, and promotional budget management for these brands across the Balkans and EU.',
+    'From Würzburg we work with Mittelstand leaders, challenger brands and institutions who need marketing that moves markets — and teams able to carry it.',
 }
 
 // How many plates to draw when BRANDS is empty, so the ring still reads as a ring.

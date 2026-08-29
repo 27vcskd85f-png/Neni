@@ -119,20 +119,8 @@ export default function ServiceOverlay({ activeId, onClose }) {
               </div>
 
               <div className="panel__footer">
-                {service.price ? (
-                  <div className="panel__price">
-                    <span className="panel__price-value">{service.price}</span>
-                    {service.priceNote && <span className="panel__price-note">{service.priceNote}</span>}
-                  </div>
-                ) : (
-                  <div className="panel__price">
-                    <span className="panel__price-value panel__price-value--quiet">Priced per scope</span>
-                    <span className="panel__price-note">Tell us what you need and we will quote it.</span>
-                  </div>
-                )}
-
                 <a className="panel__cta" href="#contact" onClick={onClose}>
-                  Get in Touch
+                  Let’s talk
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h13M12 5l7 7-7 7" />
                   </svg>

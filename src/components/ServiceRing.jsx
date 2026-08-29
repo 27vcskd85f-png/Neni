@@ -99,13 +99,12 @@ export default function ServiceRing({ sceneRef, progressRef, pointerRef, onSelec
           onClick={() => onSelect(service.id)}
           className="ring-slot"
           style={{ willChange: 'transform, opacity, filter' }}
-          aria-label={`${service.name}${service.price ? ` — ${service.price}` : ''}`}
+          aria-label={service.name}
         >
           <span className={`ring-card${service.featured ? ' ring-card--featured' : ''}`}>
             <span className="ring-card__glow" aria-hidden="true" />
             <ServiceIcon name={service.icon} className="ring-card__icon" />
             <span className="ring-card__label">{service.name}</span>
-            {service.price && <span className="ring-card__price">{service.price}</span>}
           </span>
         </button>
       ))}

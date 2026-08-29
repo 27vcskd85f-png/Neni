@@ -1,0 +1,607 @@
+/* Blüten Sturm — hero ring.
+   Scoped under .bs-hero so nothing here can reach the rest of the page.
+   Colours are the site's own: #050206 ground, #E1103A crimson, #FF5A1F ember. */
+
+.bs-hero {
+  --bs-ink: #f4efee;
+  --bs-dim: rgba(244, 239, 238, 0.68);
+  --bs-faint: rgba(244, 239, 238, 0.42);
+  --bs-crimson: #e1103a;
+  --bs-ember: #ff5a1f;
+  --bs-warm: #ff9a6b;
+  --bs-edge: rgba(255, 154, 107, 0.42);
+  --bs-plate: rgba(225, 16, 58, 0.24);
+  --bs-plate-hi: rgba(255, 255, 255, 0.28);
+
+  position: relative;
+  z-index: 5;
+  height: 340vh;              /* scroll runway the sequence plays across */
+}
+
+.bs-hero__scene {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* ---- backdrop clips ---------------------------------------------------- */
+.bs-hero__video {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1.06);
+  /* The clips are lit magenta with gold particles. A plain hue-rotate lands the
+     magenta on crimson but pushes the gold to green, so collapse to one hue and
+     tint that to ember instead. */
+  filter: blur(30px) grayscale(1) sepia(0.9) saturate(2.1) hue-rotate(-20deg) brightness(0.45) contrast(1.15);
+}
+
+.bs-hero__video--scrub {
+  filter: blur(24px) grayscale(1) sepia(0.9) saturate(2.4) hue-rotate(-18deg) brightness(0.5) contrast(1.15);
+}
+
+.bs-hero__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(225, 16, 58, 0.10), transparent 55%),
+    radial-gradient(72% 58% at 50% 50%, transparent 26%, rgba(5, 2, 6, 0.88) 100%),
+    linear-gradient(to bottom, rgba(5, 2, 6, 0.5) 0%, transparent 22%, transparent 70%, rgba(5, 2, 6, 0.9) 100%);
+}
+
+/* One stacking context for cards + figure, so per-card z-index interleaves with
+   the character. Nothing in here may create a nested stacking context. */
+.bs-hero__stage {
+  position: absolute;
+  inset: 0;
+  perspective: 1400px;
+}
+
+.bs-hero__character {
+  position: absolute;
+  left: 50%;
+  top: 61%;
+  width: min(31vw, 400px);
+  height: auto;
+  transform: translate3d(-50%, -50%, 0);
+  pointer-events: none;
+  user-select: none;
+  /* 24deg moves the figure's magenta rim light into crimson while leaving the
+     neutral chrome body alone. */
+  filter: hue-rotate(24deg) saturate(1.06)
+    drop-shadow(0 0 60px rgba(225, 16, 58, 0.42))
+    drop-shadow(0 24px 60px rgba(0, 0, 0, 0.75));
+}
+
+.bs-hero__particles {
+  position: absolute;
+  inset: 0;
+  z-index: 950;
+  pointer-events: none;
+}
+
+/* ---- ring cards -------------------------------------------------------- */
+.bs-slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transform-style: preserve-3d;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bs-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 124px;
+  min-height: 104px;
+  padding: 13px 11px;
+  border-radius: 16px;
+  border: 1px solid var(--bs-edge);
+  background: linear-gradient(158deg, var(--bs-plate-hi) 0%, var(--bs-plate) 46%, rgba(255, 90, 31, 0.12) 100%);
+  backdrop-filter: blur(12px) saturate(1.3);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.10),
+    0 18px 42px rgba(0, 0, 0, 0.55);
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bs-card--featured {
+  width: 152px;
+  min-height: 124px;
+  border-color: rgba(255, 154, 107, 0.7);
+  background: linear-gradient(158deg, rgba(255, 255, 255, 0.28) 0%, rgba(225, 16, 58, 0.34) 45%, rgba(255, 90, 31, 0.24) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 0 1px rgba(255, 90, 31, 0.24),
+    0 22px 54px rgba(120, 12, 34, 0.55);
+}
+
+.bs-card__glow {
+  position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(225, 16, 58, 0.62), transparent 70%);
+  opacity: 0;
+  filter: blur(18px);
+  transition: opacity 240ms ease;
+  pointer-events: none;
+}
+
+.bs-card__icon {
+  width: 30px;
+  height: 30px;
+  color: #ffe4dc;
+  flex: none;
+  filter: drop-shadow(0 0 10px rgba(255, 90, 31, 0.6));
+}
+
+.bs-card--featured .bs-card__icon { width: 36px; height: 36px; color: #fff1ea; }
+
+.bs-card__label {
+  font-size: 11px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--bs-ink);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
+  text-wrap: balance;
+}
+
+.bs-card--featured .bs-card__label { font-size: 12.5px; }
+
+.bs-slot:hover .bs-card,
+.bs-slot:focus-visible .bs-card {
+  border-color: rgba(255, 154, 107, 0.8);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 0 1px rgba(255, 90, 31, 0.45),
+    0 26px 60px rgba(140, 14, 40, 0.62);
+}
+
+.bs-slot:hover .bs-card__glow,
+.bs-slot:focus-visible .bs-card__glow { opacity: 0.75; }
+
+/* ---- brand plates ------------------------------------------------------ */
+.bs-slot--brand { cursor: default; }
+
+.bs-brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 150px;
+  height: 106px;
+  padding: 14px;
+  border-radius: 15px;
+  border: 1px solid rgba(244, 239, 238, 0.16);
+  background: linear-gradient(158deg, rgba(255, 255, 255, 0.20) 0%, rgba(225, 16, 58, 0.12) 100%);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36), 0 16px 38px rgba(0, 0, 0, 0.5);
+  transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.bs-brand__logo {
+  max-width: 104px;
+  max-height: 48px;
+  object-fit: contain;
+  /* Desaturated at rest, full colour on hover — the ring reads as one texture
+     until you single a brand out. */
+  filter: grayscale(1) brightness(1.7) contrast(0.85);
+  opacity: 0.8;
+  transition: filter 260ms ease, opacity 260ms ease;
+}
+
+.bs-brand__placeholder {
+  width: 78px;
+  height: 30px;
+  border-radius: 6px;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.20), rgba(255, 154, 107, 0.10));
+}
+
+.bs-brand__name {
+  font-family: 'Syne', sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bs-faint);
+  transition: color 260ms ease;
+}
+
+.bs-slot--brand:hover .bs-brand {
+  transform: translateY(-4px) scale(1.06);
+  border-color: rgba(255, 154, 107, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 24px 54px rgba(140, 14, 40, 0.5);
+}
+
+.bs-slot--brand:hover .bs-brand__logo { filter: none; opacity: 1; }
+.bs-slot--brand:hover .bs-brand__name { color: var(--bs-dim); }
+
+/* ---- hero copy --------------------------------------------------------- */
+.bs-hero__copy {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 960;
+  width: min(92vw, 760px);
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+
+.bs-hero__copy--services { top: 12%; }
+.bs-hero__copy--brands { top: 11%; width: min(94vw, 900px); opacity: 0; }
+
+.bs-hero__eyebrow {
+  display: block;
+  margin: 0 0 18px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--bs-faint);
+}
+
+.bs-hero__title {
+  margin: 0;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(26px, 3.4vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  color: var(--bs-ink);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.85);
+  text-wrap: balance;
+}
+
+.bs-hero__title em {
+  font-style: normal;
+  background: linear-gradient(120deg, #ff7a2f, var(--bs-crimson));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bs-hero__sub {
+  margin: 16px auto 0;
+  max-width: 620px;
+  font-size: clamp(12px, 1.05vw, 15px);
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--bs-dim);
+  text-wrap: pretty;
+}
+
+.bs-hero__actions {
+  margin-top: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  pointer-events: auto;
+}
+
+.bs-hero__cta {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 100px;
+  background: linear-gradient(120deg, var(--bs-crimson), var(--bs-ember));
+  box-shadow: 0 10px 34px rgba(225, 16, 58, 0.36);
+  transition: transform 350ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 350ms ease;
+}
+
+.bs-hero__cta:hover { transform: translateY(-2px); box-shadow: 0 16px 44px rgba(255, 90, 31, 0.5); color: #fff; }
+
+.bs-hero__cta--ghost {
+  background: transparent;
+  border: 1px solid rgba(244, 239, 238, 0.22);
+  box-shadow: none;
+  color: var(--bs-dim);
+}
+
+.bs-hero__cta--ghost:hover { border-color: var(--bs-warm); background: rgba(225, 16, 58, 0.12); color: var(--bs-ink); }
+
+.bs-hero__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 960;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--bs-faint);
+  transition: opacity 260ms ease;
+}
+
+.bs-hero__hint span:last-child {
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(to bottom, var(--bs-faint), transparent);
+}
+
+/* ---- detail panel ------------------------------------------------------ */
+.bs-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;                    /* above the site nav (50) and progress (60) */
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 2, 6, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+.bs-overlay[hidden] { display: none; }
+.bs-overlay.is-open { opacity: 1; }
+
+.bs-panel {
+  position: relative;
+  width: min(96vw, 620px);
+  max-height: min(88vh, 780px);
+  overflow: auto;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(165deg, #1c0710 0%, #0c0308 55%, #070205 100%);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform: translateY(22px) scale(0.97);
+  transition: transform 340ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bs-overlay.is-open .bs-panel { transform: none; }
+
+.bs-panel--featured { width: min(96vw, 880px); display: grid; grid-template-columns: 300px 1fr; }
+
+.bs-panel__close {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 4, 8, 0.7);
+  color: var(--bs-dim);
+  cursor: pointer;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.bs-panel__close:hover { color: var(--bs-ink); border-color: rgba(255, 255, 255, 0.4); background: rgba(50, 12, 24, 0.9); }
+.bs-panel__close svg { width: 16px; height: 16px; }
+
+.bs-panel__visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(150deg, rgba(225, 16, 58, 0.42) 0%, rgba(255, 90, 31, 0.22) 55%, rgba(7, 2, 5, 0.92) 100%),
+    url('./media/hero/ring-reference-1.webp') center / cover;
+}
+
+.bs-panel__visual-icon {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  color: #fff1ea;
+  filter: drop-shadow(0 0 26px rgba(255, 90, 31, 0.85));
+}
+
+.bs-panel__visual-tag {
+  position: absolute;
+  left: 20px;
+  bottom: 18px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.bs-panel__body { padding: 34px 34px 30px; }
+
+.bs-panel__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bs-faint);
+}
+
+.bs-panel__eyebrow svg { width: 15px; height: 15px; }
+
+.bs-panel__title {
+  margin: 14px 0 0;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(23px, 2.6vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.16;
+  color: var(--bs-ink);
+  text-wrap: balance;
+}
+
+.bs-panel__tagline { margin: 10px 0 0; font-size: 15px; color: #ff7d8c; }
+
+.bs-panel__desc {
+  margin: 16px 0 0;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.68;
+  color: var(--bs-dim);
+  text-wrap: pretty;
+}
+
+.bs-panel__subhead {
+  margin: 26px 0 12px;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bs-faint);
+}
+
+.bs-panel__list { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+
+.bs-panel__list li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 300;
+  color: var(--bs-ink);
+}
+
+.bs-panel__list li::before {
+  content: '';
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--bs-crimson);
+  box-shadow: 0 0 8px rgba(225, 16, 58, 0.95);
+  transform: translateY(-2px);
+}
+
+.bs-panel__footer {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .bs-panel--featured { grid-template-columns: 1fr; }
+  .bs-panel__visual { min-height: 170px; }
+  .bs-panel__body { padding: 26px 22px 24px; }
+}
+
+/* ---- reduced motion / small screens ------------------------------------ */
+.bs-hero.is-static { height: auto; }
+.bs-hero.is-static .bs-hero__scene { position: relative; height: auto; min-height: 0; padding: 118px 24px 70px; }
+.bs-hero.is-static .bs-hero__video,
+.bs-hero.is-static .bs-hero__particles { display: none; }
+.bs-hero.is-static .bs-hero__stage { position: relative; inset: auto; perspective: none; display: grid; place-items: center; }
+.bs-hero.is-static .bs-hero__character {
+  -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 58%, transparent 100%);
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  width: min(66vw, 320px);
+  margin-bottom: 26px;
+}
+.bs-hero.is-static .bs-hero__copy { position: relative; left: auto; top: auto; transform: none; width: auto; opacity: 1; margin-bottom: 34px; }
+.bs-hero.is-static .bs-hero__copy--brands { display: none; }
+.bs-hero.is-static .bs-hero__hint { display: none; }
+
+.bs-hero.is-static .bs-slot {
+  position: relative;
+  width: 100%;
+  transform: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  z-index: auto !important;
+}
+
+.bs-static-grid {
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.bs-hero.is-static .bs-card,
+.bs-hero.is-static .bs-brand {
+  display: flex;
+  width: 100%;
+  height: auto;
+  min-height: 116px;
+  align-items: flex-start;
+  justify-content: flex-end;
+  text-align: left;
+}
+
+.bs-hero.is-static .bs-card__label,
+.bs-hero.is-static .bs-brand__name { text-align: left; }
+
+.bs-static-heading {
+  width: 100%;
+  max-width: 1100px;
+  margin: 52px auto 18px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bs-faint);
+}
+
+/* ---- nav mark ----------------------------------------------------------
+   The brief asked for a permanent logo with a small looping animation. The
+   site nav already carries the mark and is fixed for the whole page, so the
+   pulse goes there rather than adding a second logo over it. */
+@keyframes bs-mark-breathe {
+  0%, 100% { opacity: 0.86; filter: drop-shadow(0 0 14px rgba(225, 16, 58, 0.55)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 26px rgba(255, 90, 31, 0.9)); }
+}
+
+.bs-navmark { animation: bs-mark-breathe 6.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bs-navmark { animation: none; }
+}

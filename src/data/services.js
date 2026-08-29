@@ -44,8 +44,6 @@ export const SERVICES = [
     name: 'Social Media Management',
     icon: 'chat',
     featured: true,
-    price: '€800–1,300/month',
-    priceNote: 'Retainer, scaled to channel count and posting cadence.',
     tagline: 'Always-on presence, run by people who post daily.',
     description:
       'Strategy, content calendar, production, publishing, community management and monthly reporting across your channels. One team owns the whole loop, so what you learn in comments feeds back into next month’s plan.',
@@ -66,8 +64,6 @@ export const SERVICES = [
     name: 'Website & Digital Experience',
     icon: 'monitor',
     featured: true,
-    price: 'From €500',
-    priceNote: 'Scope-dependent; landing pages start here, full builds are quoted.',
     tagline: 'Sites that load fast and convert honestly.',
     description:
       'Design and build of marketing sites, landing pages and digital products — accessible, fast, measurable, and handed over in a CMS your team can actually run without us.',
@@ -167,8 +163,6 @@ export const SERVICES = [
     id: 'corporate-training',
     name: 'Corporate Training & Organizational Development',
     icon: 'grad',
-    price: '€2,000–5,000/month',
-    priceNote: 'Programme-based; scaled to cohort size and session frequency.',
     tagline: 'Capability that stays after we leave.',
     description:
       'Workshops and structured programmes in marketing, brand, digital and leadership — designed around your team’s actual gaps and measured against what changes in their work.',

@@ -1,25 +1,79 @@
 # Blüten Sturm — homepage hero & scroll sequence
 
-Scroll-linked hero for bluetensturm.com: a ring of 18 service cards around the
-character, which dissolves through a gold-particle transition into a ring of
-client brand logos.
+A scroll-linked hero: a ring of 18 service cards around the character, which
+dissolves through an ember-particle transition into a ring of client brand
+logos.
+
+There are two copies of it in this repo.
+
+## `site/` — the deployable site (this is the one that ships)
+
+The live bluetensturm.com build with the ring hero ported in as the new `#top`
+section. Plain HTML/CSS/JS against the existing Claude Design runtime, so it
+deploys to Netlify exactly as the current site does.
 
 ```
-npm install
-npm run dev      # http://localhost:5173
-npm run build
+cd site && python3 -m http.server 4200
+# then open http://127.0.0.1:4200/Bluten%20Sturm%20v2.dc.html
 ```
 
-Two query overrides help while developing:
+| File | |
+| --- | --- |
+| `site/hero-ring.js` | The whole hero: geometry, rAF loops, particles, detail panel, static fallback |
+| `site/hero-ring.css` | All hero styling, scoped under `.bs-hero` |
+| `site/Bluten Sturm v2.dc.html` | The page. `#top` replaced; every other section untouched |
+| `site/i18n.js` | Extended with the hero's strings in DE/FR/ES/IT |
+| `site/media/hero/` | Clips, character plate, posters |
+
+**What changed in the page itself** — nothing outside the hero. The `#top`
+section was replaced, a stylesheet and script were added to `<helmet>`, one
+`BSHeroRing.mount(root)` call was added to `componentDidMount`, and the nav mark
+got a `bs-navmark` class for its pulse. The old hero's JS hooks
+(`[data-hero-video]`, `[data-marquee]`, `[data-hero-inner]`) are all null-guarded
+in the existing script, so removing those elements is safe.
+
+**The nav mark is the permanent logo.** The brief asked for a fixed logo with a
+small looping animation. The site nav already carries the mark and is fixed for
+the whole page, so the breathing pulse went there rather than adding a second
+logo on top of it.
+
+**Service card labels live in the page markup**, not in JS, so the site's own
+i18n walker translates them before the ring ever reads them. Detail-panel prose
+is built by `hero-ring.js`, which imports `./i18n.js` directly and rebuilds an
+open panel when the visitor switches language.
+
+### Still in English: the detail-panel prose
+
+Panel chrome (`Close`, `Featured service`, `What that includes`, the CTA) and all
+18 card labels are translated into DE/FR/ES/IT. The 18 taglines, 18 descriptions
+and their bullet lists are **not** — they fall back to English, so a German
+visitor gets a German panel frame around English body copy.
+
+That is deliberate rather than an oversight. It is long-form marketing copy for a
+marketing agency, and it should be written by whoever wrote the rest of
+`i18n.js`. The hook is already in place: add rows keyed by the exact English
+string from `hero-ring.js` and the panels pick them up with no code change.
+There is a marked block at the end of the dictionary saying so.
+
+## `/` — the React reference implementation
+
+The same hero as a standalone Vite + React app. Superseded by `site/` for
+shipping, kept as the readable version of the same logic.
+
+```
+npm install && npm run dev
+```
+
+Both copies honour the same query overrides:
 
 | URL | Effect |
 | --- | --- |
-| `?motion=full` | Force the full ring sequence, whatever the device reports |
+| `?motion=full` | Force the ring sequence, whatever the device reports |
 | `?motion=reduced` | Force the static fallback |
 
 ---
 
-## What changed from the original brief, and why
+## Why the ring is real DOM rather than a scrubbed video
 
 The brief proposed scroll-scrubbing the two Higgsfield clips as background
 layers with clickable HTML hitboxes positioned over each card in the video.

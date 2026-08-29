@@ -56,7 +56,6 @@ export default function ReducedMotionHero() {
               >
                 <ServiceIcon name={service.icon} className="rm-card__icon" />
                 <span className="rm-card__label">{service.name}</span>
-                {service.price && <span className="rm-card__price">{service.price}</span>}
               </button>
             </li>
           ))}
