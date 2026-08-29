@@ -1,23 +1,30 @@
 @import 'tailwindcss';
 
 /* ------------------------------------------------------------------ tokens */
+/* Palette, type and logo are taken from the live bluetensturm.com build so the
+   hero drops into the existing site without a seam. */
 :root {
-  --bg: #070a14;
-  --bg-deep: #04060d;
-  --ink: #eef1fb;
-  --ink-dim: #a7b0c9;
-  --ink-faint: #6f7a96;
-  --violet: #b06cf5;
-  --magenta: #e067d8;
-  --blue: #5b7cf0;
-  --gold: #f0b45a;
-  --edge: rgba(214, 224, 255, 0.34);
-  --edge-soft: rgba(214, 224, 255, 0.18);
-  --plate: rgba(150, 170, 225, 0.20);
-  --plate-hi: rgba(255, 255, 255, 0.26);
+  --bg: #050206;
+  --bg-deep: #030103;
+  --ink: #f4efee;
+  --ink-dim: rgba(244, 239, 238, 0.68);
+  --ink-faint: rgba(244, 239, 238, 0.42);
+  --crimson: #e1103a;
+  --ember: #ff5a1f;
+  --coral: #ff5a6e;
+  --warm: #ff9a6b;
+  --edge: rgba(255, 154, 107, 0.42);
+  --edge-soft: rgba(244, 239, 238, 0.16);
+  --plate: rgba(225, 16, 58, 0.24);
+  --plate-hi: rgba(255, 255, 255, 0.28);
+
+  --font-display: 'Syne', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 * { box-sizing: border-box; }
+
+::selection { background: var(--crimson); color: #fff; }
 
 html { scroll-behavior: smooth; }
 
@@ -25,13 +32,13 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 :focus-visible {
-  outline: 2px solid var(--violet);
+  outline: 2px solid var(--coral);
   outline-offset: 3px;
   border-radius: 6px;
 }
@@ -50,7 +57,7 @@ body {
   height: 100svh;
   overflow: hidden;
   background:
-    radial-gradient(120% 90% at 50% 44%, #131a33 0%, #090d1a 46%, var(--bg-deep) 100%);
+    radial-gradient(120% 90% at 50% 42%, #1c060d 0%, #090205 48%, var(--bg-deep) 100%);
 }
 
 .hero-video {
@@ -62,20 +69,21 @@ body {
   pointer-events: none;
   /* Heavily blurred on purpose: these clips carry light, colour and particle
      motion, not readable content. The legible ring is real DOM on top. */
-  filter: blur(26px) saturate(1.15);
+  filter: blur(30px) grayscale(1) sepia(0.9) saturate(2.1) hue-rotate(-20deg) brightness(0.45) contrast(1.15);
   opacity: 0;
   transform: scale(1.06);
 }
 
-.hero-video--scrub { filter: blur(20px) saturate(1.25); }
+.hero-video--scrub { filter: blur(24px) grayscale(1) sepia(0.9) saturate(2.4) hue-rotate(-18deg) brightness(0.5) contrast(1.15); }
 
 .hero-vignette {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(78% 62% at 50% 50%, transparent 38%, rgba(4, 6, 13, 0.72) 100%),
-    linear-gradient(to bottom, rgba(4, 6, 13, 0.55) 0%, transparent 22%, transparent 70%, rgba(4, 6, 13, 0.85) 100%);
+    radial-gradient(120% 90% at 50% 0%, rgba(225, 16, 58, 0.10), transparent 55%),
+    radial-gradient(72% 58% at 50% 50%, transparent 26%, rgba(5, 2, 6, 0.88) 100%),
+    linear-gradient(to bottom, rgba(5, 2, 6, 0.55) 0%, transparent 22%, transparent 70%, rgba(5, 2, 6, 0.88) 100%);
 }
 
 /* One stacking context for cards + character, so per-card z-index interleaves
@@ -95,7 +103,11 @@ body {
   transform: translate3d(-50%, -50%, 0);
   pointer-events: none;
   user-select: none;
-  filter: drop-shadow(0 0 60px rgba(150, 90, 240, 0.35)) drop-shadow(0 24px 60px rgba(0, 0, 0, 0.7));
+  /* The generated character is rim-lit magenta; the rotation brings that into
+     the crimson/ember range without touching the neutral chrome body. */
+  filter: hue-rotate(24deg) saturate(1.06)
+    drop-shadow(0 0 60px rgba(225, 16, 58, 0.42))
+    drop-shadow(0 24px 60px rgba(0, 0, 0, 0.75));
 }
 
 .particle-field {
@@ -131,7 +143,7 @@ body {
   border-radius: 16px;
   border: 1px solid var(--edge);
   background:
-    linear-gradient(158deg, var(--plate-hi) 0%, var(--plate) 46%, rgba(120, 140, 200, 0.13) 100%);
+    linear-gradient(158deg, var(--plate-hi) 0%, var(--plate) 46%, rgba(255, 90, 31, 0.12) 100%);
   backdrop-filter: blur(12px) saturate(1.3);
   -webkit-backdrop-filter: blur(12px) saturate(1.3);
   box-shadow:
@@ -144,20 +156,20 @@ body {
 .ring-card--featured {
   width: 152px;
   min-height: 124px;
-  border-color: rgba(226, 196, 255, 0.6);
+  border-color: rgba(255, 154, 107, 0.7);
   background:
-    linear-gradient(158deg, rgba(255, 255, 255, 0.30) 0%, rgba(186, 122, 250, 0.28) 45%, rgba(101, 134, 245, 0.20) 100%);
+    linear-gradient(158deg, rgba(255, 255, 255, 0.28) 0%, rgba(225, 16, 58, 0.34) 45%, rgba(255, 90, 31, 0.24) 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 0 0 1px rgba(176, 108, 245, 0.18),
-    0 22px 54px rgba(60, 20, 110, 0.5);
+    0 0 0 1px rgba(255, 90, 31, 0.24),
+    0 22px 54px rgba(120, 12, 34, 0.55);
 }
 
 .ring-card__glow {
   position: absolute;
   inset: -30%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(176, 108, 245, 0.5), transparent 70%);
+  background: radial-gradient(closest-side, rgba(225, 16, 58, 0.62), transparent 70%);
   opacity: 0;
   filter: blur(18px);
   transition: opacity 240ms ease;
@@ -167,15 +179,15 @@ body {
 .ring-card__icon {
   width: 30px;
   height: 30px;
-  color: #dbe3ff;
+  color: #ffe4dc;
   flex: none;
-  filter: drop-shadow(0 0 10px rgba(150, 120, 255, 0.55));
+  filter: drop-shadow(0 0 10px rgba(255, 90, 31, 0.6));
 }
 
 .ring-card--featured .ring-card__icon {
   width: 36px;
   height: 36px;
-  color: #f0e6ff;
+  color: #fff1ea;
 }
 
 .ring-card__label {
@@ -184,8 +196,8 @@ body {
   font-weight: 600;
   letter-spacing: 0.02em;
   text-align: center;
-  color: #edf1ff;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+  color: var(--ink);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
   text-wrap: balance;
 }
 
@@ -196,18 +208,18 @@ body {
   font-weight: 500;
   letter-spacing: 0.04em;
   white-space: nowrap;
-  color: var(--gold);
+  color: var(--warm);
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
 }
 
 .ring-slot:hover .ring-card,
 .ring-slot:focus-visible .ring-card {
-  border-color: rgba(226, 200, 255, 0.65);
+  border-color: rgba(255, 154, 107, 0.8);
   transform: translateY(-5px) scale(1.05);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 0 0 1px rgba(200, 150, 255, 0.35),
-    0 26px 60px rgba(70, 24, 130, 0.6);
+    0 0 0 1px rgba(255, 90, 31, 0.45),
+    0 26px 60px rgba(140, 14, 40, 0.62);
 }
 
 .ring-slot:hover .ring-card__glow,
@@ -228,7 +240,7 @@ body {
   padding: 14px;
   border-radius: 15px;
   border: 1px solid var(--edge-soft);
-  background: linear-gradient(158deg, rgba(255, 255, 255, 0.22) 0%, rgba(140, 160, 215, 0.14) 100%);
+  background: linear-gradient(158deg, rgba(255, 255, 255, 0.20) 0%, rgba(225, 16, 58, 0.12) 100%);
   backdrop-filter: blur(10px) saturate(1.2);
   -webkit-backdrop-filter: blur(10px) saturate(1.2);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36), 0 16px 38px rgba(0, 0, 0, 0.5);
@@ -250,7 +262,7 @@ body {
   width: 78px;
   height: 30px;
   border-radius: 6px;
-  background: linear-gradient(100deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.07));
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.20), rgba(255, 154, 107, 0.10));
 }
 
 .brand-card__name {
@@ -263,8 +275,8 @@ body {
 
 .ring-slot--brand:hover .brand-card {
   transform: translateY(-4px) scale(1.06);
-  border-color: rgba(226, 200, 255, 0.5);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 24px 54px rgba(70, 24, 130, 0.5);
+  border-color: rgba(255, 154, 107, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 24px 54px rgba(140, 14, 40, 0.5);
 }
 
 .ring-slot--brand:hover .brand-card__logo {
@@ -288,19 +300,21 @@ body {
 
 .hero-intro__title {
   margin: 0;
-  font-size: clamp(24px, 3.1vw, 44px);
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 1.12;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.4vw, 50px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.06;
   color: var(--ink);
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.85);
 }
 
-.hero-intro__accent { color: var(--magenta); }
+.hero-intro__accent { color: var(--crimson); }
 
 .hero-intro__sub {
-  margin: 12px 0 0;
+  margin: 14px 0 0;
   font-size: clamp(12px, 1.05vw, 15px);
+  font-weight: 300;
   color: var(--ink-dim);
   letter-spacing: 0.01em;
 }
@@ -319,19 +333,21 @@ body {
 
 .hero-brandcopy__title {
   margin: 0;
-  font-size: clamp(22px, 2.9vw, 42px);
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 1.14;
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.85);
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3.2vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
   text-wrap: balance;
 }
 
 .hero-brandcopy__sub {
-  margin: 14px auto 0;
-  max-width: 620px;
+  margin: 16px auto 0;
+  max-width: 640px;
   font-size: clamp(12px, 1.05vw, 15px);
-  line-height: 1.6;
+  font-weight: 300;
+  line-height: 1.65;
   color: var(--ink-dim);
   text-wrap: pretty;
 }
@@ -346,6 +362,8 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 600;
   font-size: 10px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
@@ -378,7 +396,7 @@ body {
   overflow: auto;
   border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: linear-gradient(165deg, #141a2e 0%, #0c1122 55%, #090d1b 100%);
+  background: linear-gradient(165deg, #1c0710 0%, #0c0308 55%, #070205 100%);
   box-shadow: 0 40px 120px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
@@ -414,14 +432,14 @@ body {
   place-items: center;
   overflow: hidden;
   background:
-    linear-gradient(150deg, rgba(176, 108, 245, 0.34) 0%, rgba(91, 124, 240, 0.18) 55%, rgba(9, 13, 27, 0.9) 100%),
+    linear-gradient(150deg, rgba(225, 16, 58, 0.42) 0%, rgba(255, 90, 31, 0.22) 55%, rgba(7, 2, 5, 0.92) 100%),
     url('/media/hero/ring-reference-1.webp') center / cover;
 }
 
 .panel__visual-wash {
   position: absolute;
   inset: 0;
-  background: radial-gradient(70% 60% at 50% 45%, rgba(240, 200, 255, 0.22), transparent 70%);
+  background: radial-gradient(70% 60% at 50% 45%, rgba(255, 200, 170, 0.22), transparent 70%);
   backdrop-filter: blur(3px);
 }
 
@@ -429,8 +447,8 @@ body {
   position: relative;
   width: 96px;
   height: 96px;
-  color: #f3ecff;
-  filter: drop-shadow(0 0 26px rgba(200, 150, 255, 0.8));
+  color: #fff1ea;
+  filter: drop-shadow(0 0 26px rgba(255, 90, 31, 0.85));
 }
 
 .panel__visual-tag {
@@ -459,9 +477,10 @@ body {
 
 .panel__title {
   margin: 14px 0 0;
-  font-size: clamp(22px, 2.5vw, 30px);
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: clamp(23px, 2.6vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
   line-height: 1.18;
   text-wrap: balance;
 }
@@ -469,7 +488,7 @@ body {
 .panel__tagline {
   margin: 10px 0 0;
   font-size: 15px;
-  color: var(--violet);
+  color: var(--coral);
   font-weight: 400;
 }
 
@@ -513,8 +532,8 @@ body {
   width: 5px;
   height: 5px;
   border-radius: 999px;
-  background: var(--violet);
-  box-shadow: 0 0 8px rgba(176, 108, 245, 0.9);
+  background: var(--crimson);
+  box-shadow: 0 0 8px rgba(225, 16, 58, 0.95);
   transform: translateY(-2px);
 }
 
@@ -532,9 +551,10 @@ body {
 .panel__price { display: grid; gap: 4px; }
 
 .panel__price-value {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--warm);
   letter-spacing: -0.01em;
 }
 
@@ -548,16 +568,19 @@ body {
   gap: 9px;
   padding: 12px 22px;
   border-radius: 999px;
-  font-size: 13.5px;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   text-decoration: none;
-  color: #16081f;
-  background: linear-gradient(100deg, #f0c4ff 0%, #c88cf8 50%, #8fa5f8 100%);
-  box-shadow: 0 12px 34px rgba(160, 90, 240, 0.42);
+  color: #fff;
+  background: linear-gradient(120deg, var(--crimson), var(--ember));
+  box-shadow: 0 10px 34px rgba(225, 16, 58, 0.36);
   transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease;
 }
 
-.panel__cta:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(160, 90, 240, 0.6); }
+.panel__cta:hover { transform: translateY(-2px); box-shadow: 0 16px 44px rgba(255, 90, 31, 0.5); }
 .panel__cta svg { width: 16px; height: 16px; }
 
 @media (max-width: 760px) {
@@ -574,7 +597,7 @@ body {
   place-items: center;
   padding: 90px 20px 40px;
   overflow: hidden;
-  background: radial-gradient(120% 90% at 50% 40%, #131a33 0%, #090d1a 50%, var(--bg-deep) 100%);
+  background: radial-gradient(120% 90% at 50% 40%, #2a0812 0%, #0d0308 50%, var(--bg-deep) 100%);
 }
 
 .rm-hero__figure { position: relative; display: grid; place-items: center; }
@@ -582,13 +605,13 @@ body {
 .rm-hero__character {
   width: min(70vw, 340px);
   height: auto;
-  filter: drop-shadow(0 0 50px rgba(150, 90, 240, 0.35));
+  filter: hue-rotate(24deg) saturate(1.06) drop-shadow(0 0 50px rgba(225, 16, 58, 0.42));
 }
 
 .rm-hero__wash {
   position: absolute;
   inset: -20%;
-  background: radial-gradient(closest-side, rgba(176, 108, 245, 0.22), transparent 70%);
+  background: radial-gradient(closest-side, rgba(225, 16, 58, 0.26), transparent 70%);
   z-index: -1;
 }
 
@@ -596,10 +619,11 @@ body {
 
 .rm-hero__title {
   margin: 0;
-  font-size: clamp(24px, 6vw, 36px);
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  font-family: var(--font-display);
+  font-size: clamp(25px, 6.2vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
 }
 
 .rm-hero__sub { margin: 12px 0 0; font-size: 14px; color: var(--ink-dim); }
@@ -609,19 +633,20 @@ body {
 
 .rm-section__heading {
   margin: 0 0 6px;
+  font-family: var(--font-display);
   font-size: 11px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .rm-section__heading--brands {
-  font-size: clamp(20px, 5vw, 30px);
-  letter-spacing: -0.02em;
+  font-size: clamp(21px, 5vw, 32px);
+  letter-spacing: -0.015em;
   text-transform: none;
   color: var(--ink);
-  font-weight: 300;
+  font-weight: 700;
   text-wrap: balance;
 }
 
@@ -662,19 +687,19 @@ body {
 }
 
 .rm-card:hover, .rm-card:focus-visible {
-  border-color: rgba(226, 200, 255, 0.5);
+  border-color: rgba(255, 154, 107, 0.55);
   transform: translateY(-3px);
 }
 
 .rm-card--featured {
-  border-color: rgba(214, 176, 255, 0.34);
-  background: linear-gradient(160deg, rgba(176, 108, 245, 0.18) 0%, rgba(91, 124, 240, 0.09) 100%);
+  border-color: rgba(255, 154, 107, 0.4);
+  background: linear-gradient(160deg, rgba(225, 16, 58, 0.22) 0%, rgba(255, 90, 31, 0.10) 100%);
   grid-column: span 2;
 }
 
-.rm-card__icon { width: 26px; height: 26px; color: #dbe3ff; }
+.rm-card__icon { width: 26px; height: 26px; color: #ffe4dc; }
 .rm-card__label { font-size: 13px; font-weight: 600; line-height: 1.3; text-wrap: balance; }
-.rm-card__price { font-size: 11px; color: var(--gold); font-weight: 500; }
+.rm-card__price { font-size: 11px; color: var(--warm); font-weight: 500; }
 
 .rm-brandgrid {
   list-style: none;
@@ -703,7 +728,7 @@ body {
   width: 66px;
   height: 26px;
   border-radius: 5px;
-  background: linear-gradient(100deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06));
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.18), rgba(255, 154, 107, 0.09));
 }
 .rm-brand__name {
   font-size: 9px;
@@ -723,15 +748,16 @@ body {
   z-index: 1;
   padding: 110px 20px 130px;
   text-align: center;
-  background: linear-gradient(to bottom, var(--bg-deep), #0a0f1f);
+  background: linear-gradient(to bottom, var(--bg-deep), #12040a);
   border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .contact__title {
   margin: 0;
-  font-size: clamp(28px, 4.4vw, 52px);
-  font-weight: 300;
-  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4.6vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .contact__sub {
@@ -755,8 +781,8 @@ body {
 }
 
 .contact__cta:hover {
-  border-color: rgba(226, 200, 255, 0.6);
-  background: rgba(176, 108, 245, 0.12);
+  border-color: rgba(255, 154, 107, 0.6);
+  background: rgba(225, 16, 58, 0.14);
   transform: translateY(-2px);
 }
 
@@ -768,4 +794,63 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* ------------------------------------------------------------- brand mark */
+.brandmark {
+  position: fixed;
+  left: 20px;
+  top: 18px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: var(--ink);
+  text-decoration: none;
+  user-select: none;
+}
+
+.brandmark:hover { color: var(--ink); }
+
+.brandmark__figure {
+  position: relative;
+  display: block;
+  flex: none;
+}
+
+.brandmark__glow {
+  position: absolute;
+  inset: -60%;
+  border-radius: 50%;
+  filter: blur(18px);
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(225, 16, 58, 0.55), rgba(255, 90, 31, 0.18) 60%, transparent 100%);
+}
+
+.brandmark__img {
+  position: relative;
+  display: block;
+  height: 34px;
+  width: auto;
+  filter: drop-shadow(0 0 16px rgba(225, 16, 58, 0.7));
+}
+
+.brandmark__word {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+}
+
+@media (min-width: 640px) {
+  .brandmark { left: 28px; top: 24px; gap: 15px; }
+  .brandmark__img { height: 40px; }
+  .brandmark__word { font-size: 14px; }
+}
+
+@media (max-width: 420px) {
+  .brandmark__word { display: none; }
 }

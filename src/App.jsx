@@ -20,8 +20,8 @@ export default function App() {
           <p className="contact__sub">
             Tell us what you are trying to move, and we will tell you what it takes.
           </p>
-          <a className="contact__cta" href="mailto:hello@bluetensturm.com">
-            hello@bluetensturm.com
+          <a className="contact__cta" href="mailto:info@bluetensturm.com">
+            info@bluetensturm.com
           </a>
         </section>
       </main>

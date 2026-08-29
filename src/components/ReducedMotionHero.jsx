@@ -22,7 +22,7 @@ export default function ReducedMotionHero() {
 
   return (
     <>
-      <section className="rm-hero" id="hero">
+      <section className="rm-hero" id="top">
         <div className="rm-hero__figure">
           <img
             src="/media/hero/character-plate.webp"

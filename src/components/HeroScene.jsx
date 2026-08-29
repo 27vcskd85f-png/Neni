@@ -94,14 +94,14 @@ export default function HeroScene() {
       // --- ambient backdrop (ring-video-1) ---------------------------------
       const v1 = video1Ref.current
       if (v1) {
-        v1.style.opacity = (0.52 * (1 - clamp(range(p, 0.18, 0.46)))).toFixed(3)
+        v1.style.opacity = (0.34 * (1 - clamp(range(p, 0.18, 0.46)))).toFixed(3)
       }
 
       // --- scrubbed backdrop (ring-video-2) --------------------------------
       const v2 = video2Ref.current
       if (v2 && v2.readyState >= 2) {
         const t = range(p, ...V2_SCRUB)
-        v2.style.opacity = (0.6 * clamp(range(p, 0.2, 0.42)) * (1 - clamp(range(p, 0.92, 1)) * 0.5)).toFixed(3)
+        v2.style.opacity = (0.42 * clamp(range(p, 0.2, 0.42)) * (1 - clamp(range(p, 0.92, 1)) * 0.5)).toFixed(3)
         const target = lerp(V2_START, Math.min(V2_END, v2.duration || V2_END), t)
         // Only seek on a real change; a seek per frame stalls the decoder.
         if (Math.abs(target - lastSeek) > 1 / 48) {
@@ -136,7 +136,7 @@ export default function HeroScene() {
 
   return (
     <>
-      <div ref={wrapRef} className="hero-wrap" id="hero">
+      <div ref={wrapRef} className="hero-wrap" id="top">
         <div ref={sceneRef} className="hero-scene">
           {/* Backdrops -------------------------------------------------- */}
           {/* WebM first: VP9 seeks well and covers Chromium builds shipped

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { PHASE, clamp, range } from '../lib/ring'
 
 /**
- * The warm gold particles that carry the handover between the two rings.
+ * The warm ember particles that carry the handover between the two rings.
  *
  * Particles are seeded on the ring's ellipse and drift outward and upward, so
  * they read as the service cards dissolving into light rather than as a generic
@@ -51,7 +51,7 @@ export default function ParticleField({ sceneRef, progressRef }) {
       p.life = 0
       p.ttl = 2.2 + Math.random() * 3.4
       p.size = 0.7 + Math.random() * 2.1
-      p.hue = 34 + Math.random() * 18 // amber -> warm gold
+      p.hue = 12 + Math.random() * 26 // ember -> amber, matching the brand gradient
       return p
     }
 
@@ -89,7 +89,7 @@ export default function ParticleField({ sceneRef, progressRef }) {
         if (alpha <= 0.01) continue
 
         ctx.beginPath()
-        ctx.fillStyle = `hsla(${q.hue}, 92%, ${62 + fade * 16}%, ${alpha})`
+        ctx.fillStyle = `hsla(${q.hue}, 95%, ${58 + fade * 18}%, ${alpha})`
         ctx.arc(q.x, q.y, q.size * (0.6 + fade * 0.7), 0, Math.PI * 2)
         ctx.fill()
       }

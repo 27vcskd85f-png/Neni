@@ -3,46 +3,42 @@ import { motion } from 'framer-motion'
 /**
  * The permanent brand mark.
  *
+ * Mirrors the lockup in the live site's nav — the petal-storm "B" mark beside a
+ * Syne wordmark in wide uppercase — so the hero reads as the same site.
+ *
  * Fixed to the top-left of the viewport and mounted outside the scroll
- * container, so it never moves with scroll and never fades — it is present for
- * the entire sequence, including the reduced-motion path.
+ * container, so it never moves with scroll and never fades. Present for the
+ * entire sequence, including the reduced-motion path.
  *
  * The animation is deliberately small: a slow opacity breath plus a matching
  * glow behind the mark. It should read as alive at the edge of vision without
  * competing with the ring.
- *
- * Swap /media/hero/logo.svg for your own file (SVG or transparent PNG) — the
- * component only cares about the path and the height.
  */
-export default function Logo({ src = '/media/hero/logo.svg', reducedMotion = false }) {
+export default function Logo({ src = '/media/brand/logo-mark.webp', reducedMotion = false }) {
   return (
-    <div className="pointer-events-none fixed left-5 top-5 z-[100] select-none sm:left-7 sm:top-6">
-      <div className="relative">
+    <a
+      href="#top"
+      className="brandmark"
+      aria-label="Blüten Sturm — back to top"
+    >
+      <span className="brandmark__figure">
         {/* Soft glow, pulsing slightly out of phase with the mark itself. */}
         {!reducedMotion && (
-          <motion.div
+          <motion.span
             aria-hidden="true"
-            className="absolute -inset-6 rounded-full blur-2xl"
-            style={{
-              background:
-                'radial-gradient(closest-side, rgba(200,120,255,0.30), rgba(90,120,240,0.10) 60%, transparent 100%)',
-            }}
-            animate={{ opacity: [0.35, 0.7, 0.35], scale: [0.94, 1.06, 0.94] }}
+            className="brandmark__glow"
+            animate={{ opacity: [0.4, 0.85, 0.4], scale: [0.92, 1.08, 0.92] }}
             transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut' }}
           />
         )}
 
         <motion.img
           src={src}
-          alt="Blüten Sturm"
-          className="relative h-9 w-auto sm:h-11"
+          alt=""
+          className="brandmark__img"
           draggable={false}
           initial={reducedMotion ? false : { opacity: 0, y: -6 }}
-          animate={
-            reducedMotion
-              ? { opacity: 1 }
-              : { opacity: [0.86, 1, 0.86], y: 0 }
-          }
+          animate={reducedMotion ? { opacity: 1 } : { opacity: [0.88, 1, 0.88], y: 0 }}
           transition={
             reducedMotion
               ? { duration: 0 }
@@ -52,7 +48,9 @@ export default function Logo({ src = '/media/hero/logo.svg', reducedMotion = fal
                 }
           }
         />
-      </div>
-    </div>
+      </span>
+
+      <span className="brandmark__word">Blüten Sturm</span>
+    </a>
   )
 }
