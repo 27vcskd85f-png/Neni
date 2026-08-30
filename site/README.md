@@ -25,7 +25,8 @@ Two query overrides help while reviewing:
 
 A 340vh scroll runway with the scene pinned. A wide, shallow ring of 18 glass
 service panels sits around the character; scrolling scatters them into ember
-particles, and 44 client logos settle in across **two orbits**. Clicking any
+particles, and 44 client logos settle in across **three orbits** — a lower band of 20, a
+middle band of 20, and a crown of 4 slightly larger plates on top. Clicking any
 panel opens a detail sheet with two package prices.
 
 The logo reveal follows the source clip: a wide river of gold particles streams
@@ -37,6 +38,10 @@ off-screen — the only travel is the slight camera settle.
 and settle. The stage uses `touch-action: pan-y`, so a horizontal drag spins the
 ring while a vertical swipe still scrolls the page. A drag that ends on top of a
 card does not open it.
+
+Drag is tracked with window-level pointer listeners rather than
+`setPointerCapture`. Capturing on the stage retargets the click that follows
+away from the card that was pressed, which silently stopped cards opening.
 
 | Progress | Phase |
 | --- | --- |
@@ -51,6 +56,7 @@ card does not open it.
 | --- | --- |
 | **02 Services** | The five discipline cards, then every one of the 18 services as a touchable box grouped under its discipline. Each opens a detail sheet with a Compact and a Premium package. |
 | **04 Selected work** | Four case cards now carry real artwork (`media/cases/`). Imagery is abstract and brand-built, and the section says so — swap in real case photography when you have it. |
+| **05 Portfolio** | The six things we make, as icon boxes. Each opens an explanation of what that work involves and what we could build — no prices, this section is about capability. |
 | **06 Corporate academy** | All four tracks and all three modules are touchable, each with an explanation, what it includes, and two package prices. |
 
 Everything opens the same panel component, so there is one interaction and one

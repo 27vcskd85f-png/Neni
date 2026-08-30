@@ -330,6 +330,58 @@ const T = {
     "Concept, produzione e regia in loco per un summit clienti di punta, più la campagna che ha riempito la sala."
   ],
 
+
+  // ---- portfolio capability boxes (05) -------------------------------------
+  "Portfolio": ["Portfolio", "Réalisations", "Portafolio", "Portfolio"],
+  "Six things we make. Press any one to see what that looks like in practice — and what we could build for you.": [
+    "Sechs Dinge, die wir machen. Tippen Sie eines an, um zu sehen, wie das in der Praxis aussieht — und was wir für Sie bauen könnten.",
+    "Six choses que nous réalisons. Touchez-en une pour voir ce que cela donne en pratique — et ce que nous pourrions construire pour vous.",
+    "Seis cosas que hacemos. Toque cualquiera para ver cómo se traduce en la práctica y qué podríamos construir para usted.",
+    "Sei cose che realizziamo. Toccane una per vedere come si traduce nella pratica — e cosa potremmo costruire per te."
+  ],
+  "Brand systems": ["Markensysteme", "Systèmes de marque", "Sistemas de marca", "Sistemi di marca"],
+  "Identity, guidelines and the kit that rolls it out.": [
+    "Identität, Richtlinien und das Kit für den Rollout.",
+    "Identité, chartes et le kit qui la déploie.",
+    "Identidad, directrices y el kit que la despliega.",
+    "Identità, linee guida e il kit che la distribuisce."
+  ],
+  "Campaign films": ["Kampagnenfilme", "Films de campagne", "Películas de campaña", "Film di campagna"],
+  "Scripted, shot and cut for every placement.": [
+    "Konzipiert, gedreht und für jedes Placement geschnitten.",
+    "Écrits, tournés et montés pour chaque emplacement.",
+    "Guionizados, rodados y montados para cada emplazamiento.",
+    "Sceneggiati, girati e montati per ogni collocazione."
+  ],
+  "Digital products": ["Digitale Produkte", "Produits digitaux", "Productos digitales", "Prodotti digitali"],
+  "Sites, configurators and tools you can run.": [
+    "Websites, Konfiguratoren und Tools, die Ihr Team selbst betreibt.",
+    "Sites, configurateurs et outils que vous pilotez vous-même.",
+    "Sitios, configuradores y herramientas que puede gestionar usted.",
+    "Siti, configuratori e strumenti che puoi gestire da solo."
+  ],
+  "Live experiences": ["Live-Erlebnisse", "Expériences live", "Experiencias en vivo", "Esperienze dal vivo"],
+  "Stands, launches and summits, start to finish.": [
+    "Messestände, Launches und Summits — von Anfang bis Ende.",
+    "Stands, lancements et sommets, du début à la fin.",
+    "Stands, lanzamientos y cumbres, de principio a fin.",
+    "Stand, lanci e summit, dall'inizio alla fine."
+  ],
+  "Editorial & content": ["Editorial & Content", "Éditorial & contenu", "Editorial y contenidos", "Editoriale & contenuti"],
+  "A publishing rhythm your audience can rely on.": [
+    "Ein Publikationsrhythmus, auf den sich Ihr Publikum verlassen kann.",
+    "Un rythme de publication sur lequel votre audience peut compter.",
+    "Un ritmo de publicación en el que su audiencia puede confiar.",
+    "Un ritmo editoriale su cui il tuo pubblico può contare."
+  ],
+  "Academy programmes": ["Akademie-Programme", "Programmes d'académie", "Programas de academia", "Programmi dell'academy"],
+  "Curricula, materials and facilitator guides.": [
+    "Curricula, Materialien und Trainerleitfäden.",
+    "Programmes, supports et guides d'animation.",
+    "Currículos, materiales y guías para facilitadores.",
+    "Programmi, materiali e guide per i formatori."
+  ],
+
   // NOT YET TRANSLATED — the detail-panel prose in hero-ring.js: the taglines,
   // descriptions, bullet lists and the two package descriptions for each of the
   // 25 panels (18 services + 7 academy entries). Those strings fall back to English

@@ -70,7 +70,11 @@
   cursor: grab;
   /* Horizontal drags spin the ring; vertical ones still scroll the page. */
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
 }
+
+.bs-hero__stage img { -webkit-user-drag: none; user-drag: none; }
 
 .bs-hero__stage.is-dragging { cursor: grabbing; }
 /* Suppress hover lift mid-drag so cards don't twitch under the finger. */
@@ -368,6 +372,7 @@
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--bs-faint);
+  pointer-events: none;
   transition: opacity 260ms ease;
 }
 
@@ -851,4 +856,98 @@
 .bs-acad-card:focus-visible {
   border-color: rgba(255, 154, 107, 0.5) !important;
   transform: translateY(-4px);
+}
+
+/* ---- portfolio capability boxes (05) ------------------------------------ */
+.bs-pf {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 30px 30px 28px;
+  border: 0;
+  background: linear-gradient(155deg, rgba(225, 16, 58, 0.10), rgba(255, 255, 255, 0.022) 55%);
+  color: var(--bs-ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 420ms ease;
+}
+
+.bs-pf__glow {
+  position: absolute;
+  left: 50%;
+  top: -30%;
+  width: 120%;
+  height: 120%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 90, 31, 0.24), transparent 72%);
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.bs-pf:hover,
+.bs-pf:focus-visible { background: linear-gradient(155deg, rgba(225, 16, 58, 0.2), rgba(255, 255, 255, 0.03) 55%); }
+.bs-pf:hover .bs-pf__glow,
+.bs-pf:focus-visible .bs-pf__glow { opacity: 1; }
+
+.bs-pf__icon {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  margin-bottom: auto;
+  color: var(--bs-warm);
+  flex: none;
+  filter: drop-shadow(0 0 16px rgba(255, 90, 31, 0.45));
+  transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1), color 420ms ease;
+}
+
+.bs-pf:hover .bs-pf__icon { transform: translateY(-4px) scale(1.06); color: #ffd0bd; }
+
+.bs-pf--lead .bs-pf__icon { width: 62px; height: 62px; }
+
+.bs-pf__title {
+  position: relative;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.012em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.bs-pf--lead .bs-pf__title { font-size: 30px; }
+
+.bs-pf__line {
+  position: relative;
+  font-size: 13.5px;
+  font-weight: 300;
+  line-height: 1.55;
+  color: var(--bs-dim);
+  max-width: 34ch;
+}
+
+.bs-pf--lead .bs-pf__line { font-size: 16px; }
+
+.bs-pf__more {
+  position: absolute;
+  right: 24px;
+  top: 24px;
+  width: 22px;
+  height: 22px;
+  color: rgba(244, 239, 238, 0.28);
+  transition: color 380ms ease, transform 380ms ease;
+}
+
+.bs-pf:hover .bs-pf__more { color: var(--bs-warm); transform: translateX(4px); }
+
+@media (max-width: 860px) {
+  .bs-pf { padding: 22px; }
+  .bs-pf--lead .bs-pf__title { font-size: 22px; }
+  .bs-pf--lead .bs-pf__icon { width: 46px; height: 46px; }
 }

@@ -178,6 +178,49 @@
       desc: 'Positioning, channels and budgets for founders and department heads who commission marketing without having run it. Enough fluency to brief well and to challenge an agency properly.',
       items: ['Half a day, inhouse or online', 'Up to fifteen participants', 'Positioning and channel basics', 'Budget logic and what to expect', 'How to brief and judge agencies']
     }
+    ,
+    'portfolio-brand-systems': {
+      title: 'Brand systems',
+      icon: 'compass',
+      tagline: 'From the positioning line to the rollout kit.',
+      desc: 'The whole identity, not just a logo: naming, verbal and visual system, motion and sound, and the guidelines that let a distributed team apply it without calling us. We build the system and the tooling around it — templates, asset libraries and a rollout plan per market.',
+      items: ['Positioning & naming', 'Visual and verbal identity', 'Motion and sound identity', 'Guidelines & templates', 'Per-market rollout kits']
+    },
+    'portfolio-campaign-films': {
+      title: 'Campaign films',
+      icon: 'play',
+      tagline: 'One shoot day, a season of cutdowns.',
+      desc: 'Brand films, product films and social-native video — scripted, directed, shot, cut, graded and scored. We agree the cutdown matrix before the shoot, so a single day yields every format the media plan actually needs rather than one hero film and a scramble.',
+      items: ['Brand and product films', 'TV and pre-roll', 'Social-native verticals', 'Motion and 3D', 'Colour, sound and versioning']
+    },
+    'portfolio-digital-products': {
+      title: 'Digital products',
+      icon: 'monitor',
+      tagline: 'Sites and tools that carry their weight.',
+      desc: 'Marketing sites, campaign landing pages, product configurators and internal tools. Fast, accessible and measurable, built on a design system rather than a pile of pages, and handed over in a CMS your team can run on its own.',
+      items: ['Marketing sites & landing pages', 'Product configurators', 'Design systems in code', 'CMS build and editor training', 'Analytics and experimentation']
+    },
+    'portfolio-live-experiences': {
+      title: 'Live experiences',
+      icon: 'ticket',
+      tagline: 'Rooms that fill, stages that hold.',
+      desc: 'Trade fair stands, launches, customer summits and internal conferences: concept, spatial and graphic design, production, staffing and on-site direction — plus the campaign that gets people through the door and the content that outlives the day.',
+      items: ['Stand and stage concept', 'Spatial and graphic design', 'Production and logistics', 'Promotion and invitations', 'On-site capture and follow-up']
+    },
+    'portfolio-editorial': {
+      title: 'Editorial & content',
+      icon: 'camera',
+      tagline: 'A publishing rhythm, not a pile of posts.',
+      desc: 'Editorial systems for brands that need to say something regularly and credibly: magazines, annual and impact reports, whitepapers, photography libraries and always-on social. We set the beats, build the calendar and produce against it.',
+      items: ['Editorial strategy and calendar', 'Magazines, reports, whitepapers', 'Photography and asset libraries', 'Always-on social', 'German and English craft copy']
+    },
+    'portfolio-academy': {
+      title: 'Academy programmes',
+      icon: 'grad',
+      tagline: 'Curricula your team keeps using.',
+      desc: 'Training built as a product: curriculum, workbooks, slide systems, video modules and facilitator guides, in German or English. Delivered by us, or handed over so your own L&D team can run it without us in the room.',
+      items: ['Curriculum design', 'Workbooks and slide systems', 'Video modules', 'Facilitator guides', 'Certification and follow-up']
+    }
   };
 
   // Fill this in yourself: drop files into ./media/brands/ and add entries.
@@ -187,12 +230,27 @@
   var BRANDS = [];
   var PLACEHOLDER_COUNT = 44;
 
-  // The logo ring is split across two orbits so 44 marks can breathe. Orbit 0
-  // is the wide lower band, orbit 1 rides above it, smaller and set back.
+  // Three orbits, so 44 marks can breathe: a wide lower band of 20, a middle
+  // band of 20 set back above it, and a crown of 4 riding on top. The crown
+  // plates are a touch larger than the rest, and their half-slot phase keeps
+  // them off the character's head at rest.
   var ORBITS = [
-    { rx: 0.492, ry: 0.126, dyF: 0.058, scale: 1.00, phase: 0 },
-    { rx: 0.430, ry: 0.104, dyF: -0.120, scale: 0.82, phase: 0.5 }
+    { count: 20, rx: 0.505, ry: 0.128, dyF:  0.072, scale: 1.00, phase: 0.0, dir:  1.00 },
+    { count: 20, rx: 0.448, ry: 0.108, dyF: -0.052, scale: 0.86, phase: 0.5, dir: -0.82 },
+    { count:  4, rx: 0.420, ry: 0.082, dyF: -0.240, scale: 1.08, phase: 0.5, dir:  0.62 }
   ];
+
+  // Split any number of brands across the orbits in the ratio above.
+  function orbitCounts(n) {
+    var base = ORBITS.map(function (o) { return o.count; });
+    var sum = base.reduce(function (a, b) { return a + b; }, 0);
+    if (n === sum) return base;
+    var out = base.map(function (c) { return Math.max(1, Math.round(c * n / sum)); });
+    var drift = n - out.reduce(function (a, b) { return a + b; }, 0);
+    var biggest = out.indexOf(Math.max.apply(null, out));
+    out[biggest] = Math.max(1, out[biggest] + drift);
+    return out;
+  }
 
 
   // Two packages per service. Indicative NET prices for the Bavarian / DACH
@@ -383,14 +441,19 @@
       return out;
     })();
 
-    var half = Math.ceil(brandItems.length / 2);
+    var counts = orbitCounts(brandItems.length);
+    var starts = [];
+    (function () { var acc = 0; for (var k = 0; k < counts.length; k++) { starts.push(acc); acc += counts[k]; } })();
+
     var brandSlots = brandItems.map(function (b, i) {
       var el = document.createElement('div');
       el.className = 'bs-slot bs-slot--brand';
-      // First half on the lower orbit, second half on the upper one.
-      el._orbit = i < half ? 0 : 1;
-      el._idx = i < half ? i : i - half;
-      el._of = i < half ? half : brandItems.length - half;
+      var o = 0;
+      while (o < counts.length - 1 && i >= starts[o + 1]) o++;
+      el._orbit = o;
+      el._idx = i - starts[o];
+      el._of = counts[o];
+      if (o === ORBITS.length - 1) el.classList.add('bs-slot--crown');
       el.style.opacity = '0';
       el.setAttribute('data-no-i18n', '');
       el.innerHTML = '<span class="bs-brand"><span class="bs-brand__content">' +
@@ -429,7 +492,7 @@
             '<span class="bs-panel__visual-tag">' + t('Featured service') + '</span></div>'
           : '') +
         '<div class="bs-panel__body">' +
-          '<div class="bs-panel__eyebrow">' + svgIcon(d.icon, '') + '<span>' + t(id.indexOf('academy-') === 0 ? 'Academy' : 'Services') + '</span></div>' +
+          '<div class="bs-panel__eyebrow">' + svgIcon(d.icon, '') + '<span>' + t(id.indexOf('academy-') === 0 ? 'Academy' : (id.indexOf('portfolio-') === 0 ? 'Portfolio' : 'Services')) + '</span></div>' +
           '<h2 class="bs-panel__title">' + name + '</h2>' +
           '<p class="bs-panel__tagline">' + t(d.tagline) + '</p>' +
           '<p class="bs-panel__desc">' + t(d.desc) + '</p>' +
@@ -589,15 +652,19 @@
     var drag = { active: false, lastX: 0, moved: 0, vel: 0, lastT: 0 };
     var DRAG_GAIN = 0.0042;   // radians of spin per pixel dragged
 
+    // Deliberately NOT using setPointerCapture. Capturing on the stage retargets
+    // the pointer stream — and the click that follows — away from the card that
+    // was pressed, so tapping a card silently stopped opening its panel. Window
+    // listeners give us the same reach while leaving normal click behaviour on
+    // the children intact.
     function onDown(e) {
-      if (state.frozen) return;
+      if (state.frozen || e.button > 0) return;
       drag.active = true;
       drag.lastX = e.clientX;
       drag.lastT = performance.now();
       drag.moved = 0;
       drag.vel = 0;
       stage.classList.add('is-dragging');
-      try { stage.setPointerCapture(e.pointerId); } catch (err) {}
     }
     function onDrag(e) {
       if (!drag.active) return;
@@ -612,23 +679,31 @@
       // Blend the throw velocity so a flick reads smoothly rather than spiking.
       drag.vel = drag.vel * 0.6 + (d / dt) * 0.4;
     }
-    function onUp(e) {
+    function onUp() {
       if (!drag.active) return;
       drag.active = false;
       stage.classList.remove('is-dragging');
-      try { stage.releasePointerCapture(e.pointerId); } catch (err) {}
-      // A tap that never travelled is a click, so let the card handle it.
+      // A tap that never travelled is a click, so let the card handle it. The
+      // click fires before this timeout, so the threshold is still readable.
       setTimeout(function () { drag.moved = 0; }, 0);
     }
+    // Pressing an image or a label would otherwise start a native drag or a
+    // text selection that runs right across the ring.
+    function noDrag(e) { e.preventDefault(); }
+
     stage.addEventListener('pointerdown', onDown);
-    stage.addEventListener('pointermove', onDrag);
-    stage.addEventListener('pointerup', onUp);
-    stage.addEventListener('pointercancel', onUp);
+    stage.addEventListener('dragstart', noDrag);
+    window.addEventListener('pointermove', onDrag, { passive: true });
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    window.addEventListener('blur', onUp);
     cleanups.push(function () {
       stage.removeEventListener('pointerdown', onDown);
-      stage.removeEventListener('pointermove', onDrag);
-      stage.removeEventListener('pointerup', onUp);
-      stage.removeEventListener('pointercancel', onUp);
+      stage.removeEventListener('dragstart', noDrag);
+      window.removeEventListener('pointermove', onDrag);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      window.removeEventListener('blur', onUp);
     });
 
     // Only now do the clips get their URLs, so a phone never starts the
@@ -782,7 +857,7 @@
         var logoT = easeOutCubic(clamp((settle - (plateAt + 0.13)) / 0.32));
 
         // Half-slot phase offset keeps the two orbits from lining up in columns.
-        var ang = ((bel._idx + orb.phase) / bel._of) * TAU + s * (bel._orbit ? -0.82 : 1);
+        var ang = ((bel._idx + orb.phase) / bel._of) * TAU + s * orb.dir;
         var bg = project(ang, lerp(1.10, 1, plateT), w, h, opt);
         var bop = bg.opacity * plateT;
 
