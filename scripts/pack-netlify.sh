@@ -25,9 +25,6 @@ npm run build
 echo "→ staging"
 cp -R dist/. "$STAGE/"
 
-# Internal documentation should not be served from the public site.
-rm -f "$STAGE/assets/README.md"
-
 # Netlify Drop ignores build settings, so caching and security headers
 # travel with the upload as a _headers file.
 cat > "$STAGE/_headers" <<'HEADERS'

@@ -1,22 +1,28 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'node:path';
 
+/**
+ * Multi-page build: three real HTML documents rather than a client-side
+ * router, so /questionnaire and /thank-you are indexable, shareable and
+ * survive a hard refresh on any static host with no redirect rules.
+ */
 export default defineConfig({
-  // Deployed to the domain root on STRATO. Change to a subfolder path
-  // (e.g. '/site/') if the build is served from anywhere but '/'.
   base: '/',
   plugins: [react()],
   build: {
     outDir: 'dist',
     assetsInlineLimit: 2048,
     rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        questionnaire: resolve(__dirname, 'questionnaire.html'),
+        thankYou: resolve(__dirname, 'thank-you.html'),
+      },
       output: {
-        // Keep the heavy 3D runtime in its own chunk so the 2D shell paints first.
-        manualChunks: {
-          three: ['three'],
-          r3f: ['@react-three/fiber', '@react-three/drei'],
-          gsap: ['gsap'],
-        },
+        // three.js is the one heavy dependency; keep it out of the shared
+        // chunk so the sub-pages are not paying for the full hero.
+        manualChunks: { three: ['three'] },
       },
     },
   },
