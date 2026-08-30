@@ -287,6 +287,13 @@
   function easeInSoft(t) { return Math.pow(t, 1.5); }
   function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
+  // Stable pseudo-random in [0,1) for a plate index, so each plate keeps the
+  // same arrival time every frame.
+  function hash01(i) {
+    var x = Math.sin(i * 12.9898 + 4.1) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
   function project(angle, radiusMul, w, h, opt) {
     opt = opt || {};
     // Wide and shallow: a broad ellipse gives long service names room to sit
@@ -386,11 +393,12 @@
       el._of = i < half ? half : brandItems.length - half;
       el.style.opacity = '0';
       el.setAttribute('data-no-i18n', '');
-      el.innerHTML = '<span class="bs-brand">' +
+      el.innerHTML = '<span class="bs-brand"><span class="bs-brand__content">' +
         (b.logo
           ? '<img class="bs-brand__logo" src="' + b.logo + '" alt="' + b.name + '" draggable="false">'
           : '<span class="bs-brand__placeholder" aria-hidden="true"></span>') +
-        '<span class="bs-brand__name">' + b.name + '</span></span>';
+        '<span class="bs-brand__name">' + b.name + '</span></span></span>';
+      el._content = el.querySelector('.bs-brand__content');
       stage.appendChild(el);
       return el;
     });
@@ -561,7 +569,11 @@
 
       var bGrid = document.createElement('div');
       bGrid.className = 'bs-static-grid';
-      brandSlots.forEach(function (el) { el.style.opacity = '1'; bGrid.appendChild(el); });
+      brandSlots.forEach(function (el) {
+        el.style.opacity = '1';
+        if (el._content) el._content.style.opacity = '1';
+        bGrid.appendChild(el);
+      });
 
       scene.appendChild(sGrid);
       scene.appendChild(bHead);
@@ -671,20 +683,39 @@
       canvas.style.height = ch + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    function seed(p) {
-      var a = Math.random() * TAU, r = 0.75 + Math.random() * 0.5;
-      p.x = cw * 0.5 + Math.cos(a) * cw * 0.445 * r;
-      p.y = ch * 0.628 + Math.sin(a) * ch * 0.170 * r;
-      p.vx = (Math.random() - 0.5) * 26;
-      p.vy = -8 - Math.random() * 34;
-      p.life = 0; p.ttl = 2.2 + Math.random() * 3.4;
-      p.size = 0.7 + Math.random() * 2.1;
-      p.hue = 12 + Math.random() * 26;   // ember -> amber, matching the brand gradient
+
+    // The stylesheet is a <link> in <helmet>; if it has not applied yet the
+    // scene still measures as the un-styled stacked layout, which would pin the
+    // particle river far below the viewport. Re-measure whenever the scene size
+    // disagrees with the buffer, which also covers resize and orientation.
+    function syncCanvas() {
+      if (!ctx) return;
+      if (cw === scene.clientWidth && ch === scene.clientHeight) return;
+      sizeCanvas();
+      for (var i = 0; i < parts.length; i++) seed(parts[i], true);
+    }
+    // In the source clip the gold is a wide horizontal river streaming across
+    // the frame at ring height — a dense glittering band, not a radial burst.
+    // Two thirds sit in a tight bright core, the rest spread into the haze.
+    function seed(p, firstFill) {
+      var core = Math.random() < 0.62;
+      var spread = core ? 0.055 : 0.20;
+      // sum of two uniforms gives a soft centre-weighted band
+      var g = (Math.random() + Math.random() - 1);
+      p.x = -0.08 * cw + Math.random() * cw * 1.16;
+      p.y = ch * 0.60 + g * ch * spread;
+      p.dir = Math.random() < 0.5 ? -1 : 1;
+      p.vx = p.dir * (26 + Math.random() * 86);
+      p.vy = -3 - Math.random() * 12;
+      p.life = firstFill ? Math.random() * 2.4 : 0;
+      p.ttl = 2.4 + Math.random() * 3.6;
+      p.size = core ? (0.5 + Math.random() * 1.5) : (0.9 + Math.random() * 2.4);
+      p.hue = 22 + Math.random() * 26;   // amber -> warm gold, as in the clip
       return p;
     }
     if (ctx) {
       sizeCanvas();
-      for (var i = 0; i < 260; i++) parts.push(seed({}));
+      for (var i = 0; i < 460; i++) parts.push(seed({}, true));
       window.addEventListener('resize', sizeCanvas);
       cleanups.push(function () { window.removeEventListener('resize', sizeCanvas); });
     }
@@ -738,17 +769,31 @@
         var bel = brandSlots[j];
         var orb = ORBITS[bel._orbit];
         var opt = { rx: orb.rx, ry: orb.ry, dy: h * orb.dyF, scale: orb.scale };
-        // Staggered arrival, so logos drop in one by one rather than as a block.
-        var tt = easeOutCubic(clamp((settle - (j / bn) * 0.45) / 0.55));
+
+        // Matches the source clip: the plates do not fly in from anywhere. The
+        // empty glass condenses out of the particle river first, then the logo
+        // resolves inside it a beat later. The only travel is the camera
+        // easing back, which is the slight radius and scale settle below.
+        // NB: not named `seed` — that is the particle seeding function in this
+        // same scope, and a `var` here would shadow it.
+        var jitter = hash01(j);
+        var plateAt = jitter * 0.40;
+        var plateT = easeOutCubic(clamp((settle - plateAt) / 0.30));
+        var logoT = easeOutCubic(clamp((settle - (plateAt + 0.13)) / 0.32));
+
         // Half-slot phase offset keeps the two orbits from lining up in columns.
         var ang = ((bel._idx + orb.phase) / bel._of) * TAU + s * (bel._orbit ? -0.82 : 1);
-        var bg = project(ang, lerp(1.9, 1, tt), w, h, opt);
-        var bop = bg.opacity * tt;
+        var bg = project(ang, lerp(1.10, 1, plateT), w, h, opt);
+        var bop = bg.opacity * plateT;
+
         bel.style.transform = 'translate3d(' + bg.x.toFixed(2) + 'px,' + bg.y.toFixed(2) + 'px,0)' +
-          ' translate(-50%,-50%) scale(' + (bg.scale * lerp(1.2, 1, tt)).toFixed(3) + ') rotateY(' + bg.turn.toFixed(3) + 'rad)';
+          ' translate(-50%,-50%) scale(' + (bg.scale * lerp(1.07, 1, plateT)).toFixed(3) + ') rotateY(' + bg.turn.toFixed(3) + 'rad)';
         bel.style.zIndex = String(bg.z);
         bel.style.opacity = bop.toFixed(3);
-        bel.style.filter = bg.blur > 0.05 ? 'blur(' + bg.blur.toFixed(2) + 'px)' : 'none';
+        // Blurred while condensing, sharp once formed.
+        var bblur = bg.blur + 7 * (1 - plateT);
+        bel.style.filter = bblur > 0.05 ? 'blur(' + bblur.toFixed(2) + 'px)' : 'none';
+        if (bel._content) bel._content.style.opacity = logoT.toFixed(3);
         bel.style.pointerEvents = bop > 0.45 ? 'auto' : 'none';
         bel.setAttribute('aria-hidden', bop > 0.45 ? 'false' : 'true');
       }
@@ -781,9 +826,12 @@
 
       // ---- particles ----
       if (ctx) {
-        var rise = range(p, PHASE.scatter[0], PHASE.scatter[1]);
-        var fall = range(p, PHASE.settle[1], 1);
-        var intensity = clamp(rise * (1 - fall * 0.82));
+        syncCanvas();
+        // Full through the scatter and the whole materialisation, thinning
+        // only once every plate has resolved — the clip does the same.
+        var rise = range(p, PHASE.scatter[0], PHASE.scatter[0] + 0.14);
+        var fall = range(p, PHASE.settle[1] - 0.04, 1);
+        var intensity = clamp(rise * (1 - fall * 0.88));
         ctx.clearRect(0, 0, cw, ch);
         if (intensity >= 0.01) {
           ctx.globalCompositeOperation = 'lighter';
@@ -792,13 +840,14 @@
             q.life += dt;
             if (q.life > q.ttl) seed(q);
             q.x += q.vx * dt; q.y += q.vy * dt;
-            q.vy += 6 * dt; q.vx *= 1 - 0.35 * dt;
+            q.vy += 2.2 * dt;              // gentle settle, not a fountain
+            q.vx *= 1 - 0.06 * dt;         // keeps the river running
             var fade = Math.sin(Math.PI * (q.life / q.ttl));
             var alpha = fade * intensity * 0.85;
             if (alpha <= 0.01) continue;
             ctx.beginPath();
             ctx.fillStyle = 'hsla(' + q.hue + ',95%,' + (58 + fade * 18) + '%,' + alpha + ')';
-            ctx.arc(q.x, q.y, q.size * (0.6 + fade * 0.7), 0, TAU);
+            ctx.arc(q.x, q.y, q.size * (0.55 + fade * 0.75), 0, TAU);
             ctx.fill();
           }
           ctx.globalCompositeOperation = 'source-over';

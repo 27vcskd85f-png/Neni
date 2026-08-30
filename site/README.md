@@ -28,6 +28,11 @@ service panels sits around the character; scrolling scatters them into ember
 particles, and 44 client logos settle in across **two orbits**. Clicking any
 panel opens a detail sheet with two package prices.
 
+The logo reveal follows the source clip: a wide river of gold particles streams
+across at ring height, empty glass plates condense out of it in scattered order,
+and each logo resolves inside its plate a beat later. Nothing flies in from
+off-screen — the only travel is the slight camera settle.
+
 **Both rings can be dragged** with a mouse or a finger, and thrown — they coast
 and settle. The stage uses `touch-action: pan-y`, so a horizontal drag spins the
 ring while a vertical swipe still scrolls the page. A drag that ends on top of a
