@@ -2,7 +2,10 @@
    Scoped under .bs-hero so nothing here can reach the rest of the page.
    Colours are the site's own: #050206 ground, #E1103A crimson, #FF5A1F ember. */
 
-.bs-hero {
+/* Tokens live on :root, not on .bs-hero — the detail panel is appended to
+   document.body, so anything scoped to the hero would resolve to nothing there
+   and gradient-clipped text would render invisible. */
+:root {
   --bs-ink: #f4efee;
   --bs-dim: rgba(244, 239, 238, 0.68);
   --bs-faint: rgba(244, 239, 238, 0.42);
@@ -12,7 +15,9 @@
   --bs-edge: rgba(255, 154, 107, 0.42);
   --bs-plate: rgba(225, 16, 58, 0.24);
   --bs-plate-hi: rgba(255, 255, 255, 0.28);
+}
 
+.bs-hero {
   position: relative;
   z-index: 5;
   height: 340vh;              /* scroll runway the sequence plays across */
@@ -61,8 +66,17 @@
 .bs-hero__stage {
   position: absolute;
   inset: 0;
-  perspective: 1400px;
+  perspective: 1600px;
+  cursor: grab;
+  /* Horizontal drags spin the ring; vertical ones still scroll the page. */
+  touch-action: pan-y;
 }
+
+.bs-hero__stage.is-dragging { cursor: grabbing; }
+/* Suppress hover lift mid-drag so cards don't twitch under the finger. */
+.bs-hero__stage.is-dragging .bs-card,
+.bs-hero__stage.is-dragging .bs-brand { transition: none; }
+.bs-hero__stage.is-dragging .bs-slot:hover .bs-card { transform: none; }
 
 .bs-hero__character {
   position: absolute;
@@ -109,8 +123,8 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 124px;
-  min-height: 104px;
+  width: 132px;
+  min-height: 106px;
   padding: 13px 11px;
   border-radius: 16px;
   border: 1px solid var(--bs-edge);
@@ -192,10 +206,10 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 150px;
-  height: 106px;
-  padding: 14px;
-  border-radius: 15px;
+  width: 130px;
+  height: 92px;
+  padding: 12px;
+  border-radius: 14px;
   border: 1px solid rgba(244, 239, 238, 0.16);
   background: linear-gradient(158deg, rgba(255, 255, 255, 0.20) 0%, rgba(225, 16, 58, 0.12) 100%);
   backdrop-filter: blur(10px) saturate(1.2);
@@ -205,8 +219,8 @@
 }
 
 .bs-brand__logo {
-  max-width: 104px;
-  max-height: 48px;
+  max-width: 92px;
+  max-height: 40px;
   object-fit: contain;
   /* Desaturated at rest, full colour on hover — the ring reads as one texture
      until you single a brand out. */
@@ -216,17 +230,17 @@
 }
 
 .bs-brand__placeholder {
-  width: 78px;
-  height: 30px;
-  border-radius: 6px;
+  width: 66px;
+  height: 24px;
+  border-radius: 5px;
   background: linear-gradient(100deg, rgba(255, 255, 255, 0.20), rgba(255, 154, 107, 0.10));
 }
 
 .bs-brand__name {
   font-family: 'Syne', sans-serif;
-  font-size: 9.5px;
+  font-size: 8.5px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--bs-faint);
   transition: color 260ms ease;
@@ -604,4 +618,230 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bs-navmark { animation: none; }
+}
+
+/* ---- drag affordance ---------------------------------------------------- */
+.bs-hero__drag-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  z-index: 959;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 15px;
+  border-radius: 100px;
+  border: 1px solid rgba(244, 239, 238, 0.14);
+  background: rgba(5, 2, 6, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bs-faint);
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+
+.bs-hero__drag-hint svg { width: 15px; height: 15px; opacity: 0.85; }
+
+/* ---- packages in the detail panel --------------------------------------- */
+.bs-pkgs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.bs-pkg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 16px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(244, 239, 238, 0.14);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.bs-pkg--premium {
+  border-color: rgba(255, 154, 107, 0.42);
+  background: linear-gradient(158deg, rgba(225, 16, 58, 0.18) 0%, rgba(255, 90, 31, 0.07) 100%);
+}
+
+.bs-pkg__name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bs-faint);
+}
+
+.bs-pkg--premium .bs-pkg__name { color: var(--bs-warm); }
+
+.bs-pkg__price {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  color: var(--bs-ink);
+}
+
+.bs-pkg--premium .bs-pkg__price {
+  background: linear-gradient(120deg, #ff7a2f, var(--bs-crimson));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bs-pkg__note { font-size: 12px; line-height: 1.55; font-weight: 300; color: var(--bs-dim); }
+
+.bs-pkg__legal {
+  margin: 14px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--bs-faint);
+}
+
+@media (max-width: 560px) { .bs-pkgs { grid-template-columns: 1fr; } }
+
+/* ---- touchable section boxes (Services 02, Academy 06) ------------------- */
+.bs-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px 22px 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(244, 239, 238, 0.11);
+  background: rgba(255, 255, 255, 0.028);
+  color: var(--bs-ink);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 300ms ease, background 300ms ease, transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.bs-box:hover,
+.bs-box:focus-visible {
+  border-color: rgba(255, 154, 107, 0.5);
+  background: linear-gradient(150deg, rgba(225, 16, 58, 0.13), rgba(255, 255, 255, 0.022) 60%);
+  transform: translateY(-4px);
+}
+
+.bs-box__icon { width: 26px; height: 26px; color: var(--bs-warm); flex: none; }
+
+.bs-box__name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.bs-box__from {
+  margin-top: auto;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bs-faint);
+}
+
+.bs-box__more {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 22px;
+  height: 22px;
+  color: rgba(244, 239, 238, 0.3);
+  transition: color 300ms ease, transform 300ms ease;
+}
+
+.bs-box:hover .bs-box__more { color: var(--bs-warm); transform: translateX(3px); }
+
+.bs-boxgrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+}
+
+.bs-group__label {
+  grid-column: 1 / -1;
+  margin: 26px 0 2px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 150, 105, 0.92);
+}
+
+.bs-group__label:first-child { margin-top: 0; }
+
+/* ---- case cards (Selected work 04) -------------------------------------- */
+.bs-case__media {
+  position: relative;
+  overflow: hidden;
+  background: #0b0206;
+}
+
+.bs-case__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 700ms ease;
+}
+
+.bs-case:hover .bs-case__media img { transform: scale(1.045); filter: saturate(1.12); }
+
+.bs-case__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(5, 2, 6, 0.72) 0%, transparent 52%);
+}
+
+.bs-case__tag {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  z-index: 2;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+/* ---- academy (06): tracks and modules are touchable --------------------- */
+.bs-acad-pill {
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 260ms ease, background 260ms ease, color 260ms ease, transform 260ms ease;
+}
+
+.bs-acad-pill:hover,
+.bs-acad-pill:focus-visible {
+  border-color: rgba(255, 154, 107, 0.72) !important;
+  background: rgba(255, 122, 47, 0.16) !important;
+  color: var(--bs-ink) !important;
+  transform: translateY(-2px);
+}
+
+.bs-acad-card {
+  cursor: pointer;
+  transition: border-color 300ms ease, transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.bs-acad-card:hover,
+.bs-acad-card:focus-visible {
+  border-color: rgba(255, 154, 107, 0.5) !important;
+  transform: translateY(-4px);
 }

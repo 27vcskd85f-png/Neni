@@ -23,9 +23,15 @@ Two query overrides help while reviewing:
 
 ## What the hero does
 
-A 340vh scroll runway with the scene pinned. A ring of 18 service cards sits
-around the character; scrolling scatters them into ember particles, and client
-brand logos settle into the same ring. Clicking any card opens a detail panel.
+A 340vh scroll runway with the scene pinned. A wide, shallow ring of 18 glass
+service panels sits around the character; scrolling scatters them into ember
+particles, and 44 client logos settle in across **two orbits**. Clicking any
+panel opens a detail sheet with two package prices.
+
+**Both rings can be dragged** with a mouse or a finger, and thrown — they coast
+and settle. The stage uses `touch-action: pan-y`, so a horizontal drag spins the
+ring while a vertical swipe still scrolls the page. A drag that ends on top of a
+card does not open it.
 
 | Progress | Phase |
 | --- | --- |
@@ -34,6 +40,31 @@ brand logos settle into the same ring. Clicking any card opens a detail panel.
 | 0.44 – 0.74 | Settle: brand logos arrive from outside the ring, staggered. |
 | 0.74 – 1.00 | Brand ring at rest, heading at full opacity. |
 
+## Interactive sections
+
+| Section | |
+| --- | --- |
+| **02 Services** | The five discipline cards, then every one of the 18 services as a touchable box grouped under its discipline. Each opens a detail sheet with a Compact and a Premium package. |
+| **04 Selected work** | Four case cards now carry real artwork (`media/cases/`). Imagery is abstract and brand-built, and the section says so — swap in real case photography when you have it. |
+| **06 Corporate academy** | All four tracks and all three modules are touchable, each with an explanation, what it includes, and two package prices. |
+
+Everything opens the same panel component, so there is one interaction and one
+design to maintain.
+
+## About the prices
+
+Indicative **net** figures for the Bavarian / DACH mid-market, benchmarked
+against published 2026 rates: agency hours 80–180 €, Mittelstand retainers
+1.500–5.000 €/month, social media 1.000–2.500 €/month for SME work and
+2.500–4.500 € for full service, corporate websites 8.000–25.000 €, and inhouse
+training days 2.000–5.000 € for the group.
+
+They are a **starting ladder, not a rate card** — read them against your own
+cost base and margins before this goes live. All of them live in one place:
+the `PACKAGES` map at the top of `hero-ring.js`. The "from" price on each
+service box in section 02 is in the page markup and should be kept in step with
+the Compact tier.
+
 ## Files added by this version
 
 | File | |
@@ -41,6 +72,7 @@ brand logos settle into the same ring. Clicking any card opens a detail panel.
 | `hero-ring.js` | The whole hero: geometry, animation loops, particles, detail panel, static fallback. Plain JS, no build step. |
 | `hero-ring.css` | All hero styling, scoped under `.bs-hero`. |
 | `media/hero/` | Two backdrop clips (WebM + MP4), the character cutout, posters. |
+| `media/cases/` | Four case visuals for section 04. |
 
 ## What changed in `Bluten Sturm v2.dc.html`
 
@@ -71,10 +103,12 @@ Drop the files into `media/brands/` and add one entry per brand. Any length
 works. While the array is empty, 18 neutral placeholder plates render so the
 sequence stays reviewable.
 
-**Detail-panel copy in DE/FR/ES/IT.** All 18 card labels, the hero copy and the
-panel chrome are translated. The 18 taglines, descriptions and bullet lists are
-not — they fall back to English, so a German visitor currently sees a German
-frame around English body copy.
+**Detail-panel copy in DE/FR/ES/IT.** All card labels, section headings, hero and
+case copy, and the panel chrome (including `Compact`, `Premium`, `Packages` and
+the price disclaimer) are translated. The per-panel prose — 25 taglines,
+25 descriptions, their bullet lists and the 50 package descriptions — is not,
+and falls back to English, so a German visitor currently sees a German frame
+around English body copy.
 
 That was left deliberately: it is long-form marketing copy and should be written
 by whoever wrote the rest of `i18n.js`, not machine-drafted. There is a marked

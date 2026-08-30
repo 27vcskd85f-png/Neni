@@ -277,8 +277,62 @@ const T = {
   "Featured service": ["Schwerpunktleistung", "Service phare", "Servicio destacado", "Servizio in evidenza"],
   "What that includes": ["Was dazugehört", "Ce que cela comprend", "Qué incluye", "Cosa comprende"],
 
-  // NOT YET TRANSLATED — the detail-panel prose in hero-ring.js: 18 taglines,
-  // 18 descriptions and their bullet lists. Those strings fall back to English
+
+  // ---- ring drag, service boxes, packages, case work -----------------------
+  "Drag to explore": ["Zum Erkunden ziehen", "Faites glisser pour explorer", "Arrastra para explorar", "Trascina per esplorare"],
+  "Compact": ["Kompakt", "Compact", "Compacto", "Compatto"],
+  "Premium": ["Premium", "Premium", "Premium", "Premium"],
+  "Packages": ["Pakete", "Formules", "Paquetes", "Pacchetti"],
+  "Indicative net prices, excluding VAT and media budget. Final scope is quoted after a briefing call.": [
+    "Richtpreise netto, zzgl. MwSt. und Mediabudget. Der finale Umfang wird nach einem Briefinggespräch angeboten.",
+    "Prix indicatifs hors taxes et hors budget média. Le périmètre final est chiffré après un entretien de briefing.",
+    "Precios netos orientativos, sin IVA ni presupuesto de medios. El alcance final se presupuesta tras una reunión de briefing.",
+    "Prezzi netti indicativi, IVA e budget media esclusi. Il perimetro finale viene quotato dopo un incontro di briefing."
+  ],
+  "Every service, and what it costs.": [
+    "Alle Leistungen — und was sie kosten.", "Tous les services, et leur prix.",
+    "Todos los servicios y lo que cuestan.", "Tutti i servizi, e quanto costano."
+  ],
+  "Tap any service for the detail and two package levels. Indicative net prices — final scope is quoted after a briefing call.": [
+    "Leistung antippen für Details und zwei Paketstufen. Richtpreise netto — der finale Umfang wird nach einem Briefinggespräch angeboten.",
+    "Touchez un service pour le détail et deux niveaux de formule. Prix indicatifs hors taxes — le périmètre final est chiffré après un briefing.",
+    "Toque un servicio para ver el detalle y dos niveles de paquete. Precios netos orientativos: el alcance final se presupuesta tras un briefing.",
+    "Tocca un servizio per il dettaglio e due livelli di pacchetto. Prezzi netti indicativi — il perimetro finale viene quotato dopo un briefing."
+  ],
+  "Reference imagery is illustrative. Full case studies, metrics and client names on request.": [
+    "Die Bildwelt ist illustrativ. Vollständige Case Studies, Kennzahlen und Kundennamen auf Anfrage.",
+    "Les visuels sont illustratifs. Études de cas complètes, chiffres et noms de clients sur demande.",
+    "Las imágenes son ilustrativas. Casos completos, métricas y nombres de clientes a petición.",
+    "Le immagini sono illustrative. Case study completi, metriche e nomi dei clienti su richiesta."
+  ],
+  "Positioning, identity system and rollout for a family-owned manufacturer entering three new European markets.": [
+    "Positionierung, Identitätssystem und Rollout für einen Familienbetrieb beim Eintritt in drei neue europäische Märkte.",
+    "Positionnement, système d'identité et déploiement pour un fabricant familial entrant sur trois nouveaux marchés européens.",
+    "Posicionamiento, sistema de identidad y despliegue para un fabricante familiar que entra en tres nuevos mercados europeos.",
+    "Posizionamento, sistema di identità e rollout per un produttore a conduzione familiare che entra in tre nuovi mercati europei."
+  ],
+  "Integrated launch across Germany, Austria and Switzerland — creative, media and measurement run by one team.": [
+    "Integrierter Launch in Deutschland, Österreich und der Schweiz — Kreation, Media und Messung aus einer Hand.",
+    "Lancement intégré en Allemagne, en Autriche et en Suisse — création, média et mesure pilotés par une seule équipe.",
+    "Lanzamiento integrado en Alemania, Austria y Suiza: creatividad, medios y medición gestionados por un solo equipo.",
+    "Lancio integrato in Germania, Austria e Svizzera — creatività, media e misurazione gestiti da un unico team."
+  ],
+  "A four-module leadership programme delivered to management cohorts across a distributed organisation.": [
+    "Ein vierteiliges Führungsprogramm für Management-Kohorten in einer verteilten Organisation.",
+    "Un programme de leadership en quatre modules déployé auprès de cohortes de managers d'une organisation distribuée.",
+    "Un programa de liderazgo de cuatro módulos impartido a cohortes directivas de una organización distribuida.",
+    "Un programma di leadership in quattro moduli erogato a coorti manageriali di un'organizzazione distribuita."
+  ],
+  "Concept, production and on-site direction for a flagship customer summit, plus the campaign that filled the room.": [
+    "Konzept, Produktion und Regie vor Ort für einen Flagship-Kundengipfel — samt der Kampagne, die den Saal gefüllt hat.",
+    "Conception, production et direction sur site d'un sommet client phare, ainsi que la campagne qui a rempli la salle.",
+    "Concepto, producción y dirección in situ de una cumbre de clientes insignia, más la campaña que llenó la sala.",
+    "Concept, produzione e regia in loco per un summit clienti di punta, più la campagna che ha riempito la sala."
+  ],
+
+  // NOT YET TRANSLATED — the detail-panel prose in hero-ring.js: the taglines,
+  // descriptions, bullet lists and the two package descriptions for each of the
+  // 25 panels (18 services + 7 academy entries). Those strings fall back to English
   // until rows are added here, which is deliberate: they are long-form
   // marketing copy for a marketing agency, and should be written by the same
   // people who wrote the rest of this dictionary rather than machine-drafted.

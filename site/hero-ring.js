@@ -128,6 +128,56 @@
       desc: 'Leadership development, communication and sales enablement — certified, bilingual, in-house or off-site. Your team leaves able to run it themselves.',
       items: ['Leadership development', 'Marketing & brand training', 'Communication & sales enablement', 'Workshop facilitation']
     }
+    ,
+    'academy-leadership': {
+      title: 'Leadership development',
+      icon: 'users',
+      tagline: 'Führung, die auch unter Druck trägt.',
+      desc: 'For newly promoted and scaling leaders. Decision-making under uncertainty, delegation that actually transfers ownership, feedback that changes behaviour, and handling conflict before it becomes attrition. Built around your own cases, not generic role play.',
+      items: ['Decision-making under uncertainty', 'Delegation & ownership transfer', 'Feedback and difficult conversations', 'Conflict and escalation handling', 'Individual leadership plan']
+    },
+    'academy-communication': {
+      title: 'Executive communication',
+      icon: 'broadcast',
+      tagline: 'Presence that survives the room and the camera.',
+      desc: 'Narrative structure, pitch craft and executive presence — in the room, on stage and on camera. Participants leave with their own story architecture and a recorded, coached delivery of it.',
+      items: ['Narrative structure & story architecture', 'Pitch craft and Q&A defence', 'Stage and on-camera presence', 'Executive writing', 'Recorded delivery with coaching']
+    },
+    'academy-sales': {
+      title: 'Sales enablement',
+      icon: 'handshake',
+      tagline: 'Enablement your sales team will actually open.',
+      desc: 'Discovery, qualification, value framing and negotiation for B2B teams — plus the materials to support them. We build the playbook with the team rather than handing one over.',
+      items: ['Discovery & qualification', 'Value framing and business cases', 'Negotiation and objection handling', 'Playbook build', 'Call shadowing & 90-day follow-up']
+    },
+    'academy-change': {
+      title: 'Change & culture',
+      icon: 'loop',
+      tagline: 'Change people carry rather than survive.',
+      desc: 'For restructures, mergers and new operating models. Diagnosis of where the organisation actually is, a communications architecture leaders can run, and the rituals that make the new way stick.',
+      items: ['Organisational diagnosis', 'Change narrative & communications architecture', 'Leadership alignment workshops', 'Team rituals and operating rhythm', 'Pulse checks and review']
+    },
+    'academy-modul-1': {
+      title: 'Führung unter Druck',
+      icon: 'badge',
+      tagline: 'Modul I · Two days.',
+      desc: 'Decision-making, delegation and conflict for new and scaling leaders. Two intensive days built on the participants’ own live situations, with a written leadership plan produced on day two.',
+      items: ['Two days, inhouse or off-site', 'Up to twelve participants', 'Own cases, not role play', 'Written leadership plan', 'German or English']
+    },
+    'academy-modul-2': {
+      title: 'Story & Stage',
+      icon: 'play',
+      tagline: 'Modul II · One day.',
+      desc: 'Narrative structure, pitch craft and presence on camera and in the room. Every participant is filmed, coached and filmed again, so the improvement is visible before they leave.',
+      items: ['One day, inhouse', 'Up to twelve participants', 'Filmed and coached delivery', 'Personal story architecture', 'German or English']
+    },
+    'academy-modul-3': {
+      title: 'Marketing für Nicht-Marketer',
+      icon: 'grad',
+      tagline: 'Modul III · Half a day.',
+      desc: 'Positioning, channels and budgets for founders and department heads who commission marketing without having run it. Enough fluency to brief well and to challenge an agency properly.',
+      items: ['Half a day, inhouse or online', 'Up to fifteen participants', 'Positioning and channel basics', 'Budget logic and what to expect', 'How to brief and judge agencies']
+    }
   };
 
   // Fill this in yourself: drop files into ./media/brands/ and add entries.
@@ -135,7 +185,52 @@
   // Any length works. While empty, neutral placeholder plates render so the
   // sequence stays testable before the real assets land.
   var BRANDS = [];
-  var PLACEHOLDER_COUNT = 18;
+  var PLACEHOLDER_COUNT = 44;
+
+  // The logo ring is split across two orbits so 44 marks can breathe. Orbit 0
+  // is the wide lower band, orbit 1 rides above it, smaller and set back.
+  var ORBITS = [
+    { rx: 0.492, ry: 0.126, dyF: 0.058, scale: 1.00, phase: 0 },
+    { rx: 0.430, ry: 0.104, dyF: -0.120, scale: 0.82, phase: 0.5 }
+  ];
+
+
+  // Two packages per service. Indicative NET prices for the Bavarian / DACH
+  // mid-market, benchmarked against published 2026 agency rates (agency hours
+  // 80-180 EUR; Mittelstand retainers 1.500-5.000 EUR/month; social media
+  // 1.000-2.500 EUR/month for SME and 2.500-4.500 for full service; corporate
+  // websites 8.000-25.000 EUR; inhouse training days 2.000-5.000 EUR).
+  // They are a starting ladder, not a rate card — confirm before publishing.
+  var PACKAGES = {
+    'brand-strategy':              [['ab 4.900 €', 'Positioning sprint over three weeks: category analysis, positioning statement, messaging hierarchy.'], ['ab 14.500 €', 'Full brand platform: architecture, naming, verbal and visual identity system, rollout guide.']],
+    'marketing-strategy':          [['ab 3.900 €', 'Audit plus a twelve-month channel, budget and campaign plan with a KPI framework.'], ['ab 2.400 €/Monat', 'Strategy retainer: quarterly steering, budget reallocation and performance review.']],
+    'creative-services':           [['ab 2.400 €', 'One campaign concept: key visual, headline system and a single-format rollout.'], ['ab 3.900 €/Monat', 'Rolling creative retainer: concepting, art direction and design across all channels.']],
+    'digital-marketing':           [['ab 1.900 €/Monat', 'One channel run properly: setup, optimisation and monthly reporting. Media budget separate.'], ['ab 4.800 €/Monat', 'Full-funnel across paid, SEO and lifecycle, with creative production and attribution.']],
+    'social-media-management':     [['ab 1.200 €/Monat', 'Two channels, organic: strategy, calendar, publishing and a monthly report.'], ['ab 3.400 €/Monat', 'Full service: quarterly shoot day, reels, paid social, community management, testing.']],
+    'content-production':          [['ab 2.900 €', 'One shoot day with a delivered, edited set of stills and short-form video.'], ['ab 8.900 €', 'Quarterly production block: multi-day shoot, motion, editorial and an asset library.']],
+    'website-digital-experience':  [['ab 6.500 €', 'Focused site or campaign landing page: UX, design, build and CMS handover.'], ['ab 19.500 €', 'Full relaunch: research, information architecture, design system, build, analytics.']],
+    'advertising':                 [['ab 2.400 €', 'Single-channel campaign: concept, production and placement planning.'], ['ab 6.500 €', 'Integrated above and below the line, with media buying and post-campaign analysis.']],
+    'pr':                          [['ab 1.600 €/Monat', 'Press office: materials, reactive media handling and distribution.'], ['ab 3.800 €/Monat', 'Proactive programme: story pipeline, thought leadership, launches and crisis readiness.']],
+    'business-development-support':[['ab 2.200 €', 'Sales enablement kit: pitch deck, one-pagers and proposal templates.'], ['ab 3.200 €/Monat', 'Lead-generation programme with partner marketing and pipeline reporting.']],
+    'event-marketing-promotions':  [['ab 3.500 €', 'One activation or trade fair presence: concept, assets and on-site direction.'], ['ab 12.000 €', 'Flagship event end to end: concept, production, staffing, promotion, follow-up.']],
+    'video-multimedia':            [['ab 2.800 €', 'One shoot day: a single film plus platform-native cutdowns.'], ['ab 9.500 €', 'Brand film plus a full campaign set, including motion, colour and sound.']],
+    'analytics':                   [['ab 2.400 €', 'Tracking implementation, tagging plan and a working dashboard.'], ['ab 1.900 €/Monat', 'Ongoing measurement: attribution modelling, experimentation and monthly readouts.']],
+    'ai-innovation':               [['ab 3.400 €', 'Workflow audit plus one AI-assisted production pipeline, built and documented.'], ['ab 11.500 €', 'Tooling build with personalisation, content operations and brand-safety governance.']],
+    'consulting':                  [['ab 1.800 €/Tag', 'Advisory day: audit, review or agency selection, with a written recommendation.'], ['ab 4.500 €/Monat', 'Interim marketing leadership, roughly two days a week.']],
+    'employer-branding':           [['ab 4.200 €', 'EVP workshop and messaging framework for recruiting and internal use.'], ['ab 12.500 €', 'EVP, careers content, recruitment campaign and internal communications.']],
+    'ongoing-client-services':     [['ab 1.500 €/Monat', 'Planning, reporting and light production with a named contact.'], ['ab 5.500 €/Monat', 'Senior team with rolling production capacity and quarterly scope reviews.']],
+    'corporate-training':          [['ab 2.900 €/Tag', 'One module, inhouse, up to twelve participants, materials included.'], ['ab 14.500 €', 'Four modules across six months with 1:1 coaching, transfer tasks and certification.']],
+    // --- academy tracks and modules (section 06) ---
+    'academy-leadership':          [['ab 2.900 €/Tag', 'One module, inhouse, up to twelve participants, materials included.'], ['ab 14.500 €', 'Four modules across six months with 1:1 coaching, transfer tasks and certification.']],
+    'academy-communication':       [['ab 2.900 €/Tag', 'One module, inhouse, up to twelve participants, materials included.'], ['ab 12.900 €', 'Three modules plus on-camera coaching and a live pitch rehearsal.']],
+    'academy-sales':               [['ab 2.900 €/Tag', 'One module, inhouse, up to twelve participants, materials included.'], ['ab 13.500 €', 'Three modules plus call shadowing, playbook build and a 90-day follow-up.']],
+    'academy-change':              [['ab 3.200 €/Tag', 'One facilitated day for a leadership team, including preparation interviews.'], ['ab 16.500 €', 'Six-month change programme: diagnosis, workshops, communications and review.']],
+    'academy-modul-1':             [['ab 5.800 €', 'Two days inhouse for up to twelve leaders, materials and workbook included.'], ['ab 14.500 €', 'Run as the anchor of the four-module leadership programme with coaching.']],
+    'academy-modul-2':             [['ab 2.900 €', 'One day inhouse for up to twelve participants, including on-camera work.'], ['ab 12.900 €', 'Extended into the executive communication track with individual coaching.']],
+    'academy-modul-3':             [['ab 1.800 €', 'Half a day for founders and department heads, up to fifteen participants.'], ['ab 6.400 €', 'Half-day plus a follow-up clinic and a twelve-month marketing plan for your team.']]
+  };
+
+  var PRICE_NOTE = 'Indicative net prices, excluding VAT and media budget. Final scope is quoted after a briefing call.';
 
   var ICONS = {
     compass: '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',
@@ -192,18 +287,21 @@
   function easeInSoft(t) { return Math.pow(t, 1.5); }
   function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
-  function project(angle, radiusMul, w, h) {
-    var rx = w * 0.445 * radiusMul;
-    var ry = h * 0.170 * radiusMul;
+  function project(angle, radiusMul, w, h, opt) {
+    opt = opt || {};
+    // Wide and shallow: a broad ellipse gives long service names room to sit
+    // side by side without crowding, which a tighter ring cannot.
+    var rx = w * (opt.rx || 0.468) * radiusMul;
+    var ry = h * (opt.ry || 0.125) * radiusMul;
     var depth = Math.cos(angle);          // +1 nearest camera, -1 furthest
     var d01 = (depth + 1) / 2;
     return {
       x: w * 0.5 + rx * Math.sin(angle),
       // Front cards sit lower, back cards ride higher: the ellipse you get
       // looking slightly down onto a horizontal ring.
-      y: h * 0.628 + ry * depth,
+      y: h * 0.628 + (opt.dy || 0) + ry * depth,
       d01: d01,
-      scale: lerp(0.54, 1.0, d01),
+      scale: lerp(0.54, 1.0, d01) * (opt.scale || 1),
       opacity: lerp(0.42, 1, d01),
       blur: lerp(2.6, 0, d01),
       z: Math.round(CHARACTER_Z + depth * 420),
@@ -241,6 +339,7 @@
     var copyServices = hero.querySelector('.bs-hero__copy--services');
     var copyBrands = hero.querySelector('.bs-hero__copy--brands');
     var hint = hero.querySelector('.bs-hero__hint');
+    var dragHint = hero.querySelector('.bs-hero__drag-hint');
     var canvas = hero.querySelector('.bs-hero__particles');
     var serviceSlots = Array.prototype.slice.call(hero.querySelectorAll('[data-service]'));
 
@@ -277,9 +376,14 @@
       return out;
     })();
 
-    var brandSlots = brandItems.map(function (b) {
+    var half = Math.ceil(brandItems.length / 2);
+    var brandSlots = brandItems.map(function (b, i) {
       var el = document.createElement('div');
       el.className = 'bs-slot bs-slot--brand';
+      // First half on the lower orbit, second half on the upper one.
+      el._orbit = i < half ? 0 : 1;
+      el._idx = i < half ? i : i - half;
+      el._of = i < half ? half : brandItems.length - half;
       el.style.opacity = '0';
       el.setAttribute('data-no-i18n', '');
       el.innerHTML = '<span class="bs-brand">' +
@@ -306,7 +410,7 @@
       if (!d) return '';
       // The card in the ring already carries the translated service name.
       var slot = hero.querySelector('[data-service="' + id + '"] .bs-card__label');
-      var name = slot ? slot.textContent.trim() : id;
+      var name = slot ? slot.textContent.trim() : (d.title ? t(d.title) : id);
       var list = d.items.map(function (i) { return '<li>' + t(i) + '</li>'; }).join('');
       return '<div class="bs-panel' + (d.featured ? ' bs-panel--featured' : '') + '" role="dialog" aria-modal="true" aria-label="' + name + '">' +
         '<button type="button" class="bs-panel__close" aria-label="' + t('Close') + '">' +
@@ -317,17 +421,34 @@
             '<span class="bs-panel__visual-tag">' + t('Featured service') + '</span></div>'
           : '') +
         '<div class="bs-panel__body">' +
-          '<div class="bs-panel__eyebrow">' + svgIcon(d.icon, '') + '<span>' + t('Services') + '</span></div>' +
+          '<div class="bs-panel__eyebrow">' + svgIcon(d.icon, '') + '<span>' + t(id.indexOf('academy-') === 0 ? 'Academy' : 'Services') + '</span></div>' +
           '<h2 class="bs-panel__title">' + name + '</h2>' +
           '<p class="bs-panel__tagline">' + t(d.tagline) + '</p>' +
           '<p class="bs-panel__desc">' + t(d.desc) + '</p>' +
           '<h3 class="bs-panel__subhead">' + t('What that includes') + '</h3>' +
           '<ul class="bs-panel__list">' + list + '</ul>' +
+          pkgMarkup(id) +
           '<div class="bs-panel__footer">' +
             '<a class="bs-hero__cta" href="#contact" data-bs-panel-cta>' + t("Let's talk") + '</a>' +
           '</div>' +
         '</div>' +
       '</div>';
+    }
+
+    function pkgMarkup(id) {
+      var rows = PACKAGES[id];
+      if (!rows) return '';
+      var labels = ['Compact', 'Premium'];
+      var cells = rows.map(function (r, i) {
+        return '<div class="bs-pkg' + (i ? ' bs-pkg--premium' : '') + '">' +
+          '<span class="bs-pkg__name">' + t(labels[i]) + '</span>' +
+          '<span class="bs-pkg__price">' + r[0] + '</span>' +
+          '<span class="bs-pkg__note">' + t(r[1]) + '</span>' +
+        '</div>';
+      }).join('');
+      return '<h3 class="bs-panel__subhead">' + t('Packages') + '</h3>' +
+        '<div class="bs-pkgs">' + cells + '</div>' +
+        '<p class="bs-pkg__legal">' + t(PRICE_NOTE) + '</p>';
     }
 
     function openPanel(id) {
@@ -381,9 +502,33 @@
     cleanups.push(function () { document.removeEventListener('keydown', onKey); });
 
     serviceSlots.forEach(function (el) {
-      var h = function () { openPanel(el.getAttribute('data-service')); };
+      var h = function () {
+        // A click that concluded a drag should not also open a panel.
+        if (typeof drag !== 'undefined' && drag && drag.moved > 8) return;
+        openPanel(el.getAttribute('data-service'));
+      };
       el.addEventListener('click', h);
       cleanups.push(function () { el.removeEventListener('click', h); });
+    });
+
+    // Section boxes (Services, Academy) reuse the same panel. Bound from the
+    // component root, not the hero, so they work on the static path too.
+    Array.prototype.forEach.call(scope.querySelectorAll('[data-panel]'), function (el) {
+      var h = function (e) {
+        e.preventDefault();
+        openPanel(el.getAttribute('data-panel'));
+      };
+      el.addEventListener('click', h);
+      var k = function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPanel(el.getAttribute('data-panel')); }
+      };
+      el.addEventListener('keydown', k);
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+      cleanups.push(function () {
+        el.removeEventListener('click', h);
+        el.removeEventListener('keydown', k);
+      });
     });
 
     // Rebuild an open panel when the visitor switches language.
@@ -427,6 +572,53 @@
     }
 
     // ---- ring path ----
+    // Drag state. The ring can be thrown with a mouse or a finger; `moved`
+    // tracks the distance so a drag that ends on a card does not also open it.
+    var drag = { active: false, lastX: 0, moved: 0, vel: 0, lastT: 0 };
+    var DRAG_GAIN = 0.0042;   // radians of spin per pixel dragged
+
+    function onDown(e) {
+      if (state.frozen) return;
+      drag.active = true;
+      drag.lastX = e.clientX;
+      drag.lastT = performance.now();
+      drag.moved = 0;
+      drag.vel = 0;
+      stage.classList.add('is-dragging');
+      try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+    function onDrag(e) {
+      if (!drag.active) return;
+      var now = performance.now();
+      var dx = e.clientX - drag.lastX;
+      var dt = Math.max(8, now - drag.lastT) / 1000;
+      drag.lastX = e.clientX;
+      drag.lastT = now;
+      drag.moved += Math.abs(dx);
+      var d = dx * DRAG_GAIN;
+      spin += d;
+      // Blend the throw velocity so a flick reads smoothly rather than spiking.
+      drag.vel = drag.vel * 0.6 + (d / dt) * 0.4;
+    }
+    function onUp(e) {
+      if (!drag.active) return;
+      drag.active = false;
+      stage.classList.remove('is-dragging');
+      try { stage.releasePointerCapture(e.pointerId); } catch (err) {}
+      // A tap that never travelled is a click, so let the card handle it.
+      setTimeout(function () { drag.moved = 0; }, 0);
+    }
+    stage.addEventListener('pointerdown', onDown);
+    stage.addEventListener('pointermove', onDrag);
+    stage.addEventListener('pointerup', onUp);
+    stage.addEventListener('pointercancel', onUp);
+    cleanups.push(function () {
+      stage.removeEventListener('pointerdown', onDown);
+      stage.removeEventListener('pointermove', onDrag);
+      stage.removeEventListener('pointerup', onUp);
+      stage.removeEventListener('pointercancel', onUp);
+    });
+
     // Only now do the clips get their URLs, so a phone never starts the
     // download at all.
     [v1, v2].forEach(function (v) {
@@ -508,9 +700,17 @@
       var scatter = range(p, PHASE.scatter[0], PHASE.scatter[1]);
       var settle = range(p, PHASE.settle[0], PHASE.settle[1]);
 
-      // Ring leans toward the cursor and drifts slowly on its own, damped so a
-      // fast pointer move never snaps it.
-      spin += (state.px * 0.42 - spin) * Math.min(1, dt * 3.5);
+      // While dragging the ring follows the finger exactly. On release it
+      // coasts. Only once it has settled does the gentle cursor lean and idle
+      // drift take back over, so the two never fight each other.
+      if (!drag.active) {
+        spin += drag.vel * dt;
+        drag.vel *= Math.pow(0.14, dt);        // frame-rate independent decay
+        if (Math.abs(drag.vel) < 0.02) {
+          drag.vel = 0;
+          spin += (state.px * 0.42 - spin) * Math.min(1, dt * 1.6);
+        }
+      }
       var s = spin + now / 1000 * 0.035;
       var eased = easeInSoft(scatter);
       var interactive = !state.frozen && p < INTERACTIVE_UNTIL;
@@ -536,9 +736,13 @@
       var bn = brandSlots.length;
       for (var j = 0; j < bn; j++) {
         var bel = brandSlots[j];
+        var orb = ORBITS[bel._orbit];
+        var opt = { rx: orb.rx, ry: orb.ry, dy: h * orb.dyF, scale: orb.scale };
         // Staggered arrival, so logos drop in one by one rather than as a block.
         var tt = easeOutCubic(clamp((settle - (j / bn) * 0.45) / 0.55));
-        var bg = project((j / bn) * TAU + s, lerp(1.9, 1, tt), w, h);
+        // Half-slot phase offset keeps the two orbits from lining up in columns.
+        var ang = ((bel._idx + orb.phase) / bel._of) * TAU + s * (bel._orbit ? -0.82 : 1);
+        var bg = project(ang, lerp(1.9, 1, tt), w, h, opt);
         var bop = bg.opacity * tt;
         bel.style.transform = 'translate3d(' + bg.x.toFixed(2) + 'px,' + bg.y.toFixed(2) + 'px,0)' +
           ' translate(-50%,-50%) scale(' + (bg.scale * lerp(1.2, 1, tt)).toFixed(3) + ') rotateY(' + bg.turn.toFixed(3) + 'rad)';
@@ -562,6 +766,7 @@
       if (copyServices) copyServices.style.opacity = (1 - clamp(range(p, 0, 0.14))).toFixed(3);
       if (copyBrands) copyBrands.style.opacity = clamp(range(p, 0.62, 0.76)).toFixed(3);
       if (hint) hint.style.opacity = (1 - clamp(range(p, 0, 0.06))).toFixed(3);
+      if (dragHint) dragHint.style.opacity = (1 - clamp(range(p, 0.10, 0.22))).toFixed(3);
 
       if (v1) v1.style.opacity = (0.34 * (1 - clamp(range(p, 0.18, 0.46)))).toFixed(3);
       if (v2 && v2.readyState >= 2) {
