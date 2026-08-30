@@ -343,15 +343,18 @@
     services: [0.00, 0.16],
     zoomIn:   [0.16, 0.34],
     face:     [0.34, 0.42],
-    pullBack: [0.42, 0.72],
-    form:     [0.78, 0.96],
-    brand:    [0.96, 1.00]
+    pullBack: [0.42, 0.68],
+    form:     [0.78, 0.94],
+    brand:    [0.94, 1.00]
   };
 
   // Where clip 2 is scrubbed to at each phase boundary, in seconds. Read off
   // the clip: 0-2s is the face, 2-5s the pull-back and particle spread, 5-8s
   // the ring assembling, 8s+ settled.
-  var V2 = { hold: 0.30, faceEnd: 1.80, pullEnd: 6.40, formEnd: 9.00 };
+  // pullEnd is 4.0s on purpose: by then the stars have fully spread but the
+  // clip's own logo ring has not started to form. Past that the clip would be
+  // showing a second, different ring behind ours.
+  var V2 = { hold: 0.30, faceEnd: 1.80, pullEnd: 4.00, formEnd: 4.50 };
 
   var INTERACTIVE_UNTIL = 0.12;
 
@@ -809,7 +812,7 @@
     }
     if (ctx) {
       sizeCanvas();
-      for (var i = 0; i < 460; i++) parts.push(seed({}, true));
+      for (var i = 0; i < 760; i++) parts.push(seed({}, true));
       window.addEventListener('resize', sizeCanvas);
       cleanups.push(function () { window.removeEventListener('resize', sizeCanvas); });
     }
@@ -910,12 +913,11 @@
           chScale = lerp(1, 3.4, easeInCubic(z));
           // Cross-fade out as the clip fades in, so the two never double up.
           chOp = 1 - clamp(range(z, 0.42, 0.92));
-        } else if (p < 0.84) {
+        } else if (p < 0.71) {
           chScale = 3.4; chOp = 0;
         } else {
-          var back = range(p, 0.84, 0.93);
-          chScale = lerp(1.14, 1, easeOutCubic(back));
-          chOp = easeOutCubic(back);
+          chScale = lerp(1.50, 1, easeOutCubic(range(p, 0.71, 0.94)));
+          chOp = clamp(range(p, 0.71, 0.79));
         }
         character.style.transform =
           'translate3d(calc(-50% + ' + (state.px * 14).toFixed(1) + 'px), calc(-50% + ' + (Math.sin(now / 2600) * 5).toFixed(1) + 'px), 0)' +
@@ -926,7 +928,7 @@
       }
 
       if (copyServices) copyServices.style.opacity = (1 - clamp(range(p, 0.04, 0.13))).toFixed(3);
-      if (copyBrands) copyBrands.style.opacity = clamp(range(p, 0.93, 0.985)).toFixed(3);
+      if (copyBrands) copyBrands.style.opacity = clamp(range(p, 0.92, 0.98)).toFixed(3);
       if (hint) hint.style.opacity = (1 - clamp(range(p, 0, 0.05))).toFixed(3);
       if (dragHint) dragHint.style.opacity = (1 - clamp(range(p, 0.06, 0.13))).toFixed(3);
 
@@ -936,7 +938,7 @@
       // --- clip 2: the hero of the middle act -------------------------------
       if (v2 && v2.readyState >= 2) {
         var zi = range(p, PHASE.zoomIn[0], PHASE.zoomIn[1]);
-        var vOp = clamp(range(zi, 0.45, 0.95)) * (1 - clamp(range(p, 0.84, 0.92)));
+        var vOp = clamp(range(zi, 0.45, 0.95)) * (1 - clamp(range(p, 0.68, 0.75)));
         v2.style.opacity = vOp.toFixed(3);
 
         var dur = v2.duration || V2.formEnd;
@@ -944,7 +946,7 @@
         if (p < PHASE.face[0]) target = V2.hold;
         else if (p < PHASE.face[1]) target = lerp(V2.hold, V2.faceEnd, range(p, PHASE.face[0], PHASE.face[1]));
         else if (p < PHASE.pullBack[1]) target = lerp(V2.faceEnd, V2.pullEnd, range(p, PHASE.pullBack[0], PHASE.pullBack[1]));
-        else target = lerp(V2.pullEnd, V2.formEnd, range(p, PHASE.pullBack[1], PHASE.form[1]));
+        else target = lerp(V2.pullEnd, V2.formEnd, range(p, PHASE.pullBack[1], 0.76));
         target = Math.min(target, dur - 0.05);
 
         // Only seek on a real change; a seek every frame stalls the decoder.
@@ -959,8 +961,8 @@
         syncCanvas();
         // The clip supplies the particle river through the pull-back. Ours
         // only lifts in to cover the hand-over and then thins away.
-        var rise = range(p, 0.76, 0.85);
-        var fall = range(p, 0.96, 1);
+        var rise = range(p, 0.54, 0.64);
+        var fall = range(p, 0.94, 1);
         var intensity = clamp(rise * (1 - fall * 0.90));
         ctx.clearRect(0, 0, cw, ch);
         if (intensity >= 0.01) {

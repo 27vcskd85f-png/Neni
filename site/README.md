@@ -46,9 +46,16 @@ two source clips.
 | 0.00 – 0.16 | Services ring at rest. Cards clickable, ring draggable. |
 | 0.16 – 0.34 | Push-in: cards sweep past the lens, the character plate scales into the face. |
 | 0.34 – 0.42 | The clip's opening close-up, held. Clip 2 at 0.3–1.8s. |
-| 0.42 – 0.72 | Pull-back: the camera eases out and the stars spread. Clip 2 at 1.8–6.4s. |
-| 0.72 – 0.96 | The plates condense out of the particles and the clip hands over to the live ring. Clip 2 at 6.4–9.0s. |
-| 0.96 – 1.00 | Logo ring at rest, interactive. |
+| 0.42 – 0.68 | Pull-back: the camera eases out and the stars spread. Clip 2 at 1.8–4.0s. |
+| 0.68 – 0.78 | The clip dissolves out through the star field. One character on screen, no plates yet. |
+| 0.78 – 0.94 | The plates condense out of the stars into the three orbits. |
+| 0.94 – 1.00 | Logo ring at rest, interactive. |
+
+**Why the clip stops at 4.0s.** By then the stars have fully spread but the
+clip's own logo ring has not begun to form. Running it further put a second,
+different ring on screen behind ours, and a second character at a different
+scale — which is exactly what it looked like. The clip now hands over at the
+star field, and the live plates condense out of those stars instead.
 
 The character plate carries the push-in — its `transform-origin` sits on the head,
 so scaling drives into the face rather than the chest — then cross-fades into the
