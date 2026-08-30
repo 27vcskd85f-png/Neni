@@ -1,0 +1,212 @@
+/* =========================================================================
+   Blüten Sturm — design tokens and shared components.
+
+   The site commits to a single visual world: a near-black Franconian night
+   with a crimson-to-ember bloom running through it. There is no light theme
+   by design, so every colour is painted explicitly rather than inherited.
+   ========================================================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* Ground: not a neutral grey — a black pulled toward the brand's red. */
+  --ink: #060305;
+  --ink-2: #0b0409;
+  --ink-3: #120409;
+
+  --chalk: #f4efee;
+  --chalk-70: rgba(244, 239, 238, 0.7);
+  --chalk-55: rgba(244, 239, 238, 0.55);
+  --chalk-45: rgba(244, 239, 238, 0.45);
+  --hair: rgba(244, 239, 238, 0.12);
+  --hair-strong: rgba(244, 239, 238, 0.22);
+
+  --crimson: #e1103a;
+  --ember: #ff5a1f;
+  --amber: #ff7a2f;
+  --peach: #ff9a6b;
+
+  --bloom: linear-gradient(120deg, #e1103a, #ff5a1f);
+  --bloom-text: linear-gradient(100deg, #ff7a2f, #e1103a 55%, #ff2d6f);
+
+  --shadow-bloom: 0 16px 46px rgba(225, 16, 58, 0.38);
+  --shadow-bloom-lg: 0 24px 62px rgba(255, 90, 31, 0.52);
+  --shadow-card: 0 32px 70px rgba(0, 0, 0, 0.55);
+
+  --font-display: 'Syne', 'Trebuchet MS', sans-serif;
+  --font-body: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  --shell: 1360px;
+  --pad: clamp(20px, 4vw, 56px);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--chalk);
+  font-family: var(--font-body);
+  font-weight: 300;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--crimson); color: #fff; }
+
+a { color: var(--peach); text-decoration: none; }
+a:hover { color: var(--amber); }
+
+img, video, canvas, svg { display: block; max-width: 100%; }
+input, textarea, select, button { font-family: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- layout ------------------------------------------------------ */
+
+.shell { width: 100%; max-width: var(--shell); margin: 0 auto; padding-inline: var(--pad); }
+.section { position: relative; z-index: 5; padding-block: clamp(88px, 11vw, 180px); }
+.section--tight { padding-block: clamp(70px, 8vw, 132px); }
+
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--amber); color: var(--ink);
+  padding: 12px 22px; border-radius: 999px; z-index: 200;
+  font-family: var(--font-display); font-weight: 700;
+}
+.skip:focus { left: 16px; top: 16px; }
+
+/* ---------- type -------------------------------------------------------- */
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  color: rgba(255, 150, 105, 0.92);
+  margin: 0 0 26px;
+}
+
+.h1, .h2, .h3, .h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  margin: 0;
+}
+.h1 { font-weight: 800; font-size: clamp(38px, 6.4vw, 92px); line-height: 0.98; }
+.h2 { font-weight: 700; font-size: clamp(32px, 3.9vw, 62px); line-height: 1.03; }
+.h3 { font-weight: 700; font-size: clamp(21px, 1.8vw, 30px); line-height: 1.15; }
+.h4 { font-weight: 700; font-size: clamp(18px, 1.4vw, 21px); line-height: 1.2; }
+
+.lead { font-size: clamp(17px, 1.35vw, 21px); line-height: 1.7; color: rgba(244, 239, 238, 0.84); margin: 0; text-wrap: pretty; }
+.body { font-size: clamp(15px, 1.1vw, 19px); line-height: 1.72; color: var(--chalk-55); margin: 0; text-wrap: pretty; }
+.gradient { background: var(--bloom-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ---------- controls ---------------------------------------------------- */
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 19px 42px; border-radius: 999px; border: 1px solid transparent;
+  cursor: pointer; transition: transform 0.35s var(--ease), box-shadow 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+}
+.btn--bloom { color: #fff; background: var(--bloom); box-shadow: var(--shadow-bloom); }
+.btn--bloom:hover { transform: translateY(-3px); box-shadow: var(--shadow-bloom-lg); color: #fff; }
+.btn--ghost { color: var(--chalk); background: transparent; border-color: var(--hair-strong); }
+.btn--ghost:hover { transform: translateY(-3px); border-color: rgba(255, 150, 105, 0.85); color: var(--chalk); }
+.btn:disabled { opacity: 0.6; cursor: progress; transform: none; }
+
+.pill {
+  display: inline-block;
+  font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--chalk-70); padding: 10px 18px;
+  border-radius: 999px; border: 1px solid var(--hair);
+}
+.pill--warm { border-color: rgba(255, 90, 31, 0.3); background: rgba(255, 90, 31, 0.06); }
+
+/* ---------- surfaces ---------------------------------------------------- */
+
+.card {
+  position: relative;
+  border-radius: 22px;
+  border: 1px solid rgba(244, 239, 238, 0.1);
+  background: rgba(255, 255, 255, 0.025);
+  transition: transform 0.5s var(--ease), box-shadow 0.5s ease, border-color 0.5s ease;
+}
+.card--bloom { background: linear-gradient(150deg, rgba(225, 16, 58, 0.14), rgba(255, 255, 255, 0.02) 46%); }
+.card--accent { border-color: rgba(255, 90, 31, 0.28); background: linear-gradient(200deg, rgba(255, 90, 31, 0.16), rgba(255, 255, 255, 0.02) 52%); }
+
+/* ---------- reveal ------------------------------------------------------ */
+
+.reveal {
+  opacity: 0;
+  transform: perspective(1200px) rotateX(7deg) translate3d(0, 44px, -90px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  transform-style: preserve-3d;
+}
+.reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* ---------- forms ------------------------------------------------------- */
+
+.field { display: grid; gap: 11px; }
+.field > span {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(244, 239, 238, 0.5);
+}
+.field > span em { font-style: normal; color: rgba(244, 239, 238, 0.3); }
+
+.input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(244, 239, 238, 0.14);
+  border-radius: 14px;
+  padding: 17px 21px;
+  font-size: 16px;
+  color: var(--chalk);
+  outline: none;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+.input::placeholder { color: rgba(244, 239, 238, 0.3); }
+.input:focus { border-color: rgba(255, 122, 47, 0.75); background: rgba(255, 255, 255, 0.07); }
+textarea.input { resize: vertical; min-height: 120px; }
+select.input option { background: var(--ink-3); color: var(--chalk); }
+
+.form-note {
+  font-size: 15px; line-height: 1.6;
+  padding: 18px 22px; border-radius: 14px;
+  border: 1px solid rgba(255, 122, 47, 0.3);
+  background: rgba(255, 122, 47, 0.07);
+  color: rgba(244, 239, 238, 0.78);
+}
+.form-note[data-ok='true'] {
+  border-color: rgba(69, 185, 106, 0.45);
+  background: rgba(69, 185, 106, 0.09);
+}
+
+/* ---------- honeypot ---------------------------------------------------- */
+
+.trap {
+  position: absolute; left: -9999px;
+  width: 1px; height: 1px; opacity: 0;
+}
