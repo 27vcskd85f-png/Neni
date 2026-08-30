@@ -335,26 +335,70 @@
   //   services  the ring at rest, interactive          (clip 1's wide framing)
   //   zoomIn    cards blow past, camera pushes in to the character's face
   //   face      clip 2's opening close-up, held
-  //   pullBack  camera eases out and the stars spread  (clip 2, 1.8s -> 6.4s)
-  //   form      plates condense out of the particles, the clip hands over to
-  //             the live ring                          (clip 2, 6.4s -> 9.0s)
+  //   pullBack  camera eases out and the stars spread  (clip 2, 1.8s -> 4.4s)
+  //   swap      the plate fades up on top of the clip's figure, both parked
+  //   clipOut   the clip's background dissolves; the figure does not move
+  //   recede    the camera keeps easing back and the plate shrinks to rest
+  //   form      plates condense out of the particles
   //   brand     the logo ring at rest, interactive
+  //
+  // swap, clipOut and recede run one after another and never overlap. That is
+  // the whole trick: the figure is only ever handed over while it is standing
+  // still, and it only starts moving again once there is a single copy of it
+  // left on the page.
   var PHASE = {
     services: [0.00, 0.16],
     zoomIn:   [0.16, 0.34],
     face:     [0.34, 0.42],
-    pullBack: [0.42, 0.68],
-    form:     [0.78, 0.94],
+    pullBack: [0.42, 0.70],
+    swap:     [0.70, 0.74],
+    clipOut:  [0.74, 0.78],
+    recede:   [0.78, 0.93],
+    form:     [0.81, 0.94],
     brand:    [0.94, 1.00]
   };
 
   // Where clip 2 is scrubbed to at each phase boundary, in seconds. Read off
-  // the clip: 0-2s is the face, 2-5s the pull-back and particle spread, 5-8s
-  // the ring assembling, 8s+ settled.
-  // pullEnd is 4.0s on purpose: by then the stars have fully spread but the
-  // clip's own logo ring has not started to form. Past that the clip would be
-  // showing a second, different ring behind ours.
-  var V2 = { hold: 0.30, faceEnd: 1.80, pullEnd: 4.00, formEnd: 4.50 };
+  // the clip: 0-2s is the face, 2-4.4s the pull-back and particle spread, and
+  // past 4.6s the clip starts assembling its own logo ring, which would sit
+  // behind ours. So the clip stops at 4.40s and the plate takes over there.
+  var V2 = { hold: 0.30, faceEnd: 1.80, pullEnd: 4.40 };
+
+  // --- the hand-over -----------------------------------------------------
+  // There is one character on this page and only one. The plate is not an
+  // illustration of the figure in the clip, it is a cut-out of that exact
+  // figure, lifted from clip 2 at t = 5.40s of the 1920x1080 master. So the
+  // swap is not a dissolve between two figures; it is the same pixels in the
+  // same place, and nothing about the figure moves across the cut.
+  //
+  // PLATE_FIT is the crop's rectangle inside the clip's own frame, in
+  // fractions of frame width and height, mapped forward from the 5.40s
+  // framing to the 4.40s framing where the swap happens. The forward map
+  // (a 1.230 scale about the frame centre plus a small offset, fitted at
+  // 0.967 silhouette IoU) is already folded in, so these four numbers place
+  // the plate directly on top of the clip's figure at V2.pullEnd:
+  //
+  //   cx, cy  centre of the plate inside the clip frame
+  //   w       plate width as a fraction of the clip frame's width
+  //
+  // The clip is object-fit: cover, so the same cover maths converts these to
+  // stage pixels at any viewport. Change the plate image and these change
+  // with it.
+  var PLATE_FIT = { cx: 0.49611, cy: 0.57954, w: 1.00194 };
+  var CLIP_AR = 16 / 9;
+
+  // Fraction of the plate's height that the face sits at. The push-in scales
+  // about this point, so the camera drives into the face and not the chest.
+  var HEAD_AT = 0.33;
+
+  // The plate carries a wide transparent margin so the crimson glow has room
+  // inside the element box; mask-image clips to that box, so a tight crop
+  // would square the glow off. These are the mask stops as percentages of the
+  // image height. MASK_REST fades out the cut edge where the clip's frame
+  // cropped the chest. MASK_OPEN leaves the plate whole, which is what the
+  // hand-over needs: there the cut edge is below the viewport anyway.
+  var MASK_OPEN = [100, 100];
+  var MASK_REST = [67.4, 85.9];
 
   var INTERACTIVE_UNTIL = 0.12;
 
@@ -433,6 +477,8 @@
 
     var cleanups = [];
     var state = { progress: 0, px: 0, py: 0, frozen: false };
+    // Cached layout box of the character plate, refreshed on resize only.
+    var charBox = { w: 0, h: 0, rw: 0, rh: 0 };
 
     lang = currentLang();
     // Panels are built on demand; load the dictionary in the background.
@@ -900,28 +946,100 @@
       }
 
       // --- character -------------------------------------------------------
-      // The plate carries the push-in until the clip can take over. Its
-      // transform-origin sits on the head, so scaling drives the camera into
-      // the face rather than into the chest. It then hands back at the end,
-      // fading in at the size the clip leaves the figure.
+      // One figure, one image, start to finish. The plate carries the push-in,
+      // the clip carries the close-up, and they change places at V2.pullEnd
+      // without the figure moving a pixel: PLATE_FIT puts the plate exactly
+      // where the clip's own figure sits at that frame, because the plate was
+      // cut out of that frame. The plate then rides the camera the rest of the
+      // way back to its resting size.
       if (character) {
-        var chScale, chOp;
+        var chScale = 1, chOp = 1, chTX = 0, chTY = 0, chMask = 1, chBlur = 0;
+        // offsetWidth forces layout, so measure only when the stage resizes.
+        if (charBox.w !== w || charBox.h !== h || !charBox.rw) {
+          charBox.w = w; charBox.h = h;
+          charBox.rw = character.offsetWidth || 0;
+          charBox.rh = charBox.rw * ((character.naturalHeight || 1073) / (character.naturalWidth || 1144));
+        }
+        var restW = charBox.rw, restH = charBox.rh;
+        // Resting placement, straight off the CSS: left 50%, top 61%.
+        var restCx = w * 0.5, restCy = h * 0.61;
+
+        // Where the clip puts the figure at the hand-over frame, in stage px.
+        // Same object-fit: cover maths the browser runs on the <video>.
+        var fw, fh;
+        if (w / h > CLIP_AR) { fw = w; fh = w / CLIP_AR; }
+        else { fh = h; fw = h * CLIP_AR; }
+        var handW = PLATE_FIT.w * fw;
+        var handCx = (w - fw) / 2 + PLATE_FIT.cx * fw;
+        var handCy = (h - fh) / 2 + PLATE_FIT.cy * fh;
+        var handScale = restW > 0 ? handW / restW : 1;
+
         if (p < PHASE.zoomIn[0]) {
-          chScale = 1; chOp = 1;
+          chScale = 1;
+          chOp = 1;
         } else if (p < PHASE.face[0]) {
+          // Push in on the face. Scaling about the centre would drive into the
+          // chest, so pull the figure back down by the amount the head rises.
           var z = range(p, PHASE.zoomIn[0], PHASE.zoomIn[1]);
           chScale = lerp(1, 3.4, easeInCubic(z));
-          // Cross-fade out as the clip fades in, so the two never double up.
-          chOp = 1 - clamp(range(z, 0.42, 0.92));
-        } else if (p < 0.71) {
-          chScale = 3.4; chOp = 0;
+          chTY = (chScale - 1) * (0.5 - HEAD_AT) * restH;
+          // Hand off to the clip, which is the same figure filling the frame.
+          // This one is a dissolve rather than a match cut: a flat plate cannot
+          // hold up against an extreme close-up, the foreshortening is nowhere
+          // near the same. So blur the plate through the change-over, which is
+          // what a camera moving this fast would do anyway.
+          chOp = 1 - clamp(range(z, 0.46, 0.88));
+          chBlur = 7 * Math.sin(Math.PI * clamp(range(z, 0.32, 1)));
+        } else if (p < PHASE.swap[0]) {
+          // The clip has the figure. Park the plate on its mark.
+          chScale = handScale;
+          chTX = handCx - restCx;
+          chTY = handCy - restCy;
+          chOp = 0;
+          chMask = 0;
         } else {
-          chScale = lerp(1.50, 1, easeOutCubic(range(p, 0.71, 0.94)));
-          chOp = clamp(range(p, 0.71, 0.79));
+          // Take the figure back, then keep easing out to rest. The plate is
+          // drawn over the clip and comes up to full before the clip starts to
+          // go, so the figure never thins out across the cut.
+          var e = easeOutCubic(range(p, PHASE.recede[0], PHASE.recede[1]));
+          chScale = lerp(handScale, 1, e);
+          chTX = lerp(handCx - restCx, 0, e);
+          chTY = lerp(handCy - restCy, 0, e);
+          chOp = clamp(range(p, PHASE.swap[0], PHASE.swap[1]));
+          chMask = e;
         }
+
+        // The crop runs off the bottom of the clip's frame, which is right
+        // while the figure fills the screen and wrong once it is a bust
+        // floating in the dark. Fade that cut edge in as the camera pulls out.
+        var maskCss = 'linear-gradient(to bottom, #000 ' +
+          lerp(MASK_OPEN[0], MASK_REST[0], chMask).toFixed(1) + '%, transparent ' +
+          lerp(MASK_OPEN[1], MASK_REST[1], chMask).toFixed(1) + '%)';
+        if (character._mask !== maskCss) {
+          character._mask = maskCss;
+          character.style.webkitMaskImage = maskCss;
+          character.style.maskImage = maskCss;
+        }
+
+        // Filters run in the element's own space, so the glow would blow up
+        // with the plate. Divide it back out and it stays the same size on
+        // screen from the push-in through to the ring.
+        var gl = (60 / chScale).toFixed(1);
+        var sy = (24 / chScale).toFixed(1);
+        var filterCss = 'hue-rotate(24deg) saturate(1.06)' +
+          (chBlur > 0.05 ? ' blur(' + (chBlur / chScale).toFixed(2) + 'px)' : '') +
+          ' drop-shadow(0 0 ' + gl + 'px rgba(225, 16, 58, 0.42))' +
+          ' drop-shadow(0 ' + sy + 'px ' + gl + 'px rgba(0, 0, 0, 0.75))';
+        if (character._filter !== filterCss) {
+          character._filter = filterCss;
+          character.style.filter = filterCss;
+        }
+
         character.style.transform =
-          'translate3d(calc(-50% + ' + (state.px * 14).toFixed(1) + 'px), calc(-50% + ' + (Math.sin(now / 2600) * 5).toFixed(1) + 'px), 0)' +
-          ' scale(' + chScale.toFixed(3) + ')' +
+          'translate(-50%, -50%)' +
+          ' translate3d(' + (chTX + state.px * 14).toFixed(1) + 'px, ' +
+            (chTY + Math.sin(now / 2600) * 5).toFixed(1) + 'px, 0)' +
+          ' scale(' + chScale.toFixed(4) + ')' +
           ' rotateX(' + (-state.py * 2.6).toFixed(2) + 'deg) rotateY(' + (state.px * 4.2).toFixed(2) + 'deg)';
         character.style.opacity = chOp.toFixed(3);
         character.style.zIndex = String(CHARACTER_Z);
@@ -936,17 +1054,21 @@
       if (v1) v1.style.opacity = (0.34 * (1 - clamp(range(p, 0.08, 0.20)))).toFixed(3);
 
       // --- clip 2: the hero of the middle act -------------------------------
+      // It holds on its last frame through the swap. That matters: the plate
+      // was cut from this figure at this framing, so while both are on screen
+      // they are the same picture, and the clip only starts to go once the
+      // plate is fully up. Nothing about the figure changes across the cut,
+      // only the background behind it.
       if (v2 && v2.readyState >= 2) {
         var zi = range(p, PHASE.zoomIn[0], PHASE.zoomIn[1]);
-        var vOp = clamp(range(zi, 0.45, 0.95)) * (1 - clamp(range(p, 0.68, 0.75)));
+        var vOp = clamp(range(zi, 0.42, 0.84)) * (1 - range(p, PHASE.clipOut[0], PHASE.clipOut[1]));
         v2.style.opacity = vOp.toFixed(3);
 
-        var dur = v2.duration || V2.formEnd;
+        var dur = v2.duration || V2.pullEnd;
         var target;
         if (p < PHASE.face[0]) target = V2.hold;
         else if (p < PHASE.face[1]) target = lerp(V2.hold, V2.faceEnd, range(p, PHASE.face[0], PHASE.face[1]));
-        else if (p < PHASE.pullBack[1]) target = lerp(V2.faceEnd, V2.pullEnd, range(p, PHASE.pullBack[0], PHASE.pullBack[1]));
-        else target = lerp(V2.pullEnd, V2.formEnd, range(p, PHASE.pullBack[1], 0.76));
+        else target = lerp(V2.faceEnd, V2.pullEnd, range(p, PHASE.pullBack[0], PHASE.pullBack[1]));
         target = Math.min(target, dur - 0.05);
 
         // Only seek on a real change; a seek every frame stalls the decoder.

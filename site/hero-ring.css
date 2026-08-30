@@ -40,6 +40,7 @@
   object-fit: cover;
   pointer-events: none;
   opacity: 0;
+  z-index: 1;
   transform: scale(1.06);
   /* The clips are lit magenta with gold particles. A plain hue-rotate lands the
      magenta on crimson but pushes the gold to green, so collapse to one hue and
@@ -54,6 +55,10 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  /* Above the vignette. The character plate is a cut-out of this clip and is
+     not vignetted either, so grading one and not the other would make the
+     figure jump in brightness at the hand-over. */
+  z-index: 3;
   transform: none;
   filter: hue-rotate(24deg) saturate(1.06);
 }
@@ -61,6 +66,7 @@
 .bs-hero__vignette {
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
   background:
     radial-gradient(120% 90% at 50% 0%, rgba(225, 16, 58, 0.10), transparent 55%),
@@ -73,6 +79,9 @@
 .bs-hero__stage {
   position: absolute;
   inset: 0;
+  /* Above both clips and the vignette; perspective already makes this a
+     stacking context, so the per-card z-index inside it stays self-contained. */
+  z-index: 4;
   perspective: 1600px;
   cursor: grab;
   /* Horizontal drags spin the ring; vertical ones still scroll the page. */
@@ -93,11 +102,19 @@
   position: absolute;
   left: 50%;
   top: 61%;
-  width: min(31vw, 400px);
+  /* 1564x1493, with a 210px transparent margin all round, so the figure
+     inside renders at the size the old tight crop did. */
+  width: min(42vw, 547px);
   height: auto;
-  transform: translate3d(-50%, -50%, 0);
-  /* The push-in scales about the head, so the camera drives into the face. */
-  transform-origin: 50% 26%;
+  transform: translate(-50%, -50%);
+  /* Every camera move is written out in full in hero-ring.js, head anchoring
+     included, so the origin stays at the element's centre. */
+  transform-origin: 50% 50%;
+  /* The plate's crop runs off the bottom of the clip's frame. The script
+     opens this ramp up while the figure fills the screen and closes it back
+     down as the camera pulls out. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 67.4%, transparent 85.9%);
+  mask-image: linear-gradient(to bottom, #000 67.4%, transparent 85.9%);
   pointer-events: none;
   user-select: none;
   /* 24deg moves the figure's magenta rim light into crimson while leaving the
@@ -568,13 +585,14 @@
 .bs-hero.is-static .bs-hero__particles { display: none; }
 .bs-hero.is-static .bs-hero__stage { position: relative; inset: auto; perspective: none; display: grid; place-items: center; }
 .bs-hero.is-static .bs-hero__character {
-  -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 58%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 56.1%, transparent 85.9%);
+  mask-image: linear-gradient(to bottom, #000 56.1%, transparent 85.9%);
   position: relative;
   left: auto;
   top: auto;
   transform: none;
-  width: min(66vw, 320px);
+  /* Wider than the motion version by the plate's transparent margin. */
+  width: min(90vw, 437px);
   margin-bottom: 26px;
 }
 .bs-hero.is-static .bs-hero__copy { position: relative; left: auto; top: auto; transform: none; width: auto; opacity: 1; margin-bottom: 34px; }

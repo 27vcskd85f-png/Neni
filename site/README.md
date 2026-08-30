@@ -44,24 +44,63 @@ two source clips.
 | Progress | What happens |
 | --- | --- |
 | 0.00 – 0.16 | Services ring at rest. Cards clickable, ring draggable. |
-| 0.16 – 0.34 | Push-in: cards sweep past the lens, the character plate scales into the face. |
+| 0.16 – 0.34 | Push-in: cards sweep past the lens, the plate scales into the face and dissolves into the clip. |
 | 0.34 – 0.42 | The clip's opening close-up, held. Clip 2 at 0.3–1.8s. |
-| 0.42 – 0.68 | Pull-back: the camera eases out and the stars spread. Clip 2 at 1.8–4.0s. |
-| 0.68 – 0.78 | The clip dissolves out through the star field. One character on screen, no plates yet. |
-| 0.78 – 0.94 | The plates condense out of the stars into the three orbits. |
+| 0.42 – 0.70 | Pull-back: the camera eases out and the stars spread. Clip 2 at 1.8–4.4s. |
+| 0.70 – 0.74 | The plate fades up on top of the clip's figure. Both are parked; nothing moves. |
+| 0.74 – 0.78 | The clip's background dissolves away underneath it. The figure still does not move. |
+| 0.78 – 0.93 | The camera keeps easing back and the plate shrinks to its resting size. |
+| 0.81 – 0.94 | The plates condense out of the stars into the three orbits. |
 | 0.94 – 1.00 | Logo ring at rest, interactive. |
 
-**Why the clip stops at 4.0s.** By then the stars have fully spread but the
-clip's own logo ring has not begun to form. Running it further put a second,
-different ring on screen behind ours, and a second character at a different
-scale — which is exactly what it looked like. The clip now hands over at the
-star field, and the live plates condense out of those stars instead.
+### One character, not two
 
-The character plate carries the push-in — its `transform-origin` sits on the head,
-so scaling drives into the face rather than the chest — then cross-fades into the
-clip, which is graded with the same 24° hue rotation so the two read as one
-figure. The plate fades back in at the far end once the clip has gone, and the
-live 3-orbit ring takes over from there.
+There is one figure on this page and it is one image. `media/hero/character-plate.webp`
+is not an illustration of the figure in the clip — it is a cut-out **of** that
+figure, lifted from clip 2 at t = 5.40s of the 1920×1080 master (`u2net_human_seg`,
+alpha-matted, largest blob only, 210px of transparent margin all round).
+
+`PLATE_FIT` in `hero-ring.js` is that crop's rectangle inside the clip's own
+frame, mapped forward from the 5.40s framing to the 4.40s framing where the
+hand-over happens. The forward map — a 1.230× scale about the frame centre plus
+a small offset — was fitted by maximising silhouette IoU between the two
+cut-outs and lands at 0.967. The script runs the same `object-fit: cover` maths
+the browser runs on the `<video>`, so at any viewport the plate sits exactly on
+top of the clip's figure at the hand-over.
+
+That is what makes the swap invisible, and the three steps above are why:
+
+1. **swap** — the plate comes up to full opacity *over* the clip. Same pixels,
+   same place, so nothing appears to change. A straight cross-dissolve would
+   not do: two half-opaque copies of the same picture composite to 75%, and the
+   figure would visibly thin out mid-cut.
+2. **clipOut** — only then does the clip go, and it takes only the background
+   with it.
+3. **recede** — only once there is a single copy left does the figure start
+   moving again.
+
+Get that order wrong and a second, smaller figure appears to materialise in
+front of the first one. That was the bug.
+
+**Why the clip stops at 4.4s.** Past about 4.6s it starts assembling its own
+logo ring, which would sit behind ours.
+
+Two supporting details:
+
+* The plate is drawn **above** the vignette and the clip is now drawn above it
+  too (`z-index` 1 / 2 / 3 / 4 for ambient clip, vignette, scrub clip, stage).
+  Grading one and not the other made the figure jump in brightness at the cut.
+* The plate's crimson glow and drop shadow are divided by the plate's current
+  scale every frame, because CSS filters run in the element's own space. Left
+  alone the glow would blow up to 2.4× through the hand-over. The 210px margin
+  in the image exists for the same reason: `mask-image` clips to the element
+  box, so a tight crop squared the glow off into a visible rectangle.
+
+The push-in at the other end is a dissolve rather than a match cut, and
+deliberately so: a flat plate cannot hold up against an extreme face close-up,
+the foreshortening is nowhere near the same (the same IoU fit only reaches 0.80
+there). The plate blurs through the change-over instead, which is what a camera
+moving that fast would do anyway.
 
 Clip 2 therefore plays **sharp and full-bleed** through the middle act, not as a
 blurred backdrop, and is encoded for that job: **1600×900, CRF 20**, with a
@@ -80,13 +119,6 @@ card does not open it.
 Drag is tracked with window-level pointer listeners rather than
 `setPointerCapture`. Capturing on the stage retargets the click that follows
 away from the card that was pressed, which silently stopped cards opening.
-
-| Progress | Phase |
-| --- | --- |
-| 0.00 – 0.26 | Services ring at rest. Cards clickable, ring leans toward the cursor. |
-| 0.26 – 0.52 | Scatter: cards fly outward, blur and fade. Particles ramp up. |
-| 0.44 – 0.74 | Settle: brand logos arrive from outside the ring, staggered. |
-| 0.74 – 1.00 | Brand ring at rest, heading at full opacity. |
 
 ## Interactive sections
 
