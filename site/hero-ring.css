@@ -20,7 +20,7 @@
 .bs-hero {
   position: relative;
   z-index: 5;
-  height: 340vh;              /* scroll runway the sequence plays across */
+  height: 560vh;              /* scroll runway the whole camera move plays across */
 }
 
 .bs-hero__scene {
@@ -47,8 +47,15 @@
   filter: blur(30px) grayscale(1) sepia(0.9) saturate(2.1) hue-rotate(-20deg) brightness(0.45) contrast(1.15);
 }
 
+/* Clip 2 is the hero of the middle act, so it plays sharp and full-bleed.
+   It carries the same 24deg grade as the character plate, so the cut between
+   the plate and the clip reads as one figure rather than two. */
 .bs-hero__video--scrub {
-  filter: blur(24px) grayscale(1) sepia(0.9) saturate(2.4) hue-rotate(-18deg) brightness(0.5) contrast(1.15);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: none;
+  filter: hue-rotate(24deg) saturate(1.06);
 }
 
 .bs-hero__vignette {
@@ -89,6 +96,8 @@
   width: min(31vw, 400px);
   height: auto;
   transform: translate3d(-50%, -50%, 0);
+  /* The push-in scales about the head, so the camera drives into the face. */
+  transform-origin: 50% 26%;
   pointer-events: none;
   user-select: none;
   /* 24deg moves the figure's magenta rim light into crimson while leaving the

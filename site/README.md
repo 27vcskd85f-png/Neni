@@ -9,10 +9,17 @@ Entry point: **`Bluten Sturm v2.dc.html`** (what `netlify.toml` serves at `/`).
 
 ## Run it locally
 
+**Use a server that supports HTTP byte ranges.** The hero scrubs a video by
+setting `currentTime`, and a browser can only seek when the server answers
+`Range` requests. Netlify does. Python's `http.server` does **not** — under it
+the clip loads, reports `seekable: [0, 0]`, and every seek is silently ignored,
+so the middle of the sequence just sits on the first frame.
+
 ```
-python3 -m http.server 4200
-# http://127.0.0.1:4200/Bluten%20Sturm%20v2.dc.html
+npx serve .          # or any static server with range support
 ```
+
+Then open `Bluten Sturm v2.dc.html`.
 
 Two query overrides help while reviewing:
 
@@ -29,10 +36,29 @@ particles, and 44 client logos settle in across **three orbits** — a lower ban
 middle band of 20, and a crown of 4 slightly larger plates on top. Clicking any
 panel opens a detail sheet with two package prices.
 
-The logo reveal follows the source clip: a wide river of gold particles streams
-across at ring height, empty glass plates condense out of it in scattered order,
-and each logo resolves inside its plate a beat later. Nothing flies in from
-off-screen — the only travel is the slight camera settle.
+### The camera move
+
+The hero is one continuous camera move, scrubbed by scroll and cut to match the
+two source clips.
+
+| Progress | What happens |
+| --- | --- |
+| 0.00 – 0.16 | Services ring at rest. Cards clickable, ring draggable. |
+| 0.16 – 0.34 | Push-in: cards sweep past the lens, the character plate scales into the face. |
+| 0.34 – 0.42 | The clip's opening close-up, held. Clip 2 at 0.3–1.8s. |
+| 0.42 – 0.72 | Pull-back: the camera eases out and the stars spread. Clip 2 at 1.8–6.4s. |
+| 0.72 – 0.96 | The plates condense out of the particles and the clip hands over to the live ring. Clip 2 at 6.4–9.0s. |
+| 0.96 – 1.00 | Logo ring at rest, interactive. |
+
+The character plate carries the push-in — its `transform-origin` sits on the head,
+so scaling drives into the face rather than the chest — then cross-fades into the
+clip, which is graded with the same 24° hue rotation so the two read as one
+figure. The plate fades back in at the far end once the clip has gone, and the
+live 3-orbit ring takes over from there.
+
+Clip 2 therefore plays **sharp and full-bleed** through the middle act, not as a
+blurred backdrop. It is encoded at CRF 20 with a keyframe every 4 frames so
+seeking lands cheaply.
 
 **Both rings can be dragged** with a mouse or a finger, and thrown — they coast
 and settle. The stage uses `touch-action: pan-y`, so a horizontal drag spins the
