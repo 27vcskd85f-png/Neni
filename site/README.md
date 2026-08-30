@@ -57,8 +57,13 @@ figure. The plate fades back in at the far end once the clip has gone, and the
 live 3-orbit ring takes over from there.
 
 Clip 2 therefore plays **sharp and full-bleed** through the middle act, not as a
-blurred backdrop. It is encoded at CRF 20 with a keyframe every 4 frames so
-seeking lands cheaply.
+blurred backdrop, and is encoded for that job: **1600×900, CRF 20**, with a
+keyframe every 8 frames so seeking lands cheaply.
+
+Clip 1 is the opposite case — it only ever renders under a 30px blur and has
+faded out by 20% of the runway, and it is never scrubbed. It ships at 854×480
+because nothing above that is visible through the blur, which is what pays for
+clip 2's resolution.
 
 **Both rings can be dragged** with a mouse or a finger, and thrown — they coast
 and settle. The stage uses `touch-action: pan-y`, so a horizontal drag spins the
