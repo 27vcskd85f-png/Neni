@@ -47,10 +47,10 @@ two source clips.
 | 0.16 – 0.34 | Push-in: cards sweep past the lens, the plate scales into the face and dissolves into the clip. |
 | 0.34 – 0.42 | The clip's opening close-up, held. Clip 2 at 0.3–1.8s. |
 | 0.42 – 0.70 | Pull-back: the camera eases out and the stars spread. Clip 2 at 1.8–4.4s. |
-| 0.70 – 0.74 | The plate fades up on top of the clip's figure. Both are parked; nothing moves. |
-| 0.74 – 0.78 | The clip's background dissolves away underneath it. The figure still does not move. |
-| 0.78 – 0.93 | The camera keeps easing back and the plate shrinks to its resting size. |
-| 0.81 – 0.94 | The plates condense out of the stars into the three orbits. |
+| 0.68 – 0.70 | The plate fades up on the clip's figure — while the camera is still moving. |
+| 0.70 – 0.74 | The clip's background dissolves away underneath it. |
+| 0.72 – 0.94 | The plate carries the same camera move on, down to its resting size. |
+| 0.81 – 0.95 | The embers are drawn into the plates and the three orbits condense out of them. |
 | 0.94 – 1.00 | Logo ring at rest, interactive. |
 
 ### One character, not two
@@ -60,32 +60,56 @@ is not an illustration of the figure in the clip — it is a cut-out **of** that
 figure, lifted from clip 2 at t = 5.40s of the 1920×1080 master (`u2net_human_seg`,
 alpha-matted, largest blob only, 210px of transparent margin all round).
 
-`PLATE_FIT` in `hero-ring.js` is that crop's rectangle inside the clip's own
-frame, mapped forward from the 5.40s framing to the 4.40s framing where the
-hand-over happens. The forward map — a 1.230× scale about the frame centre plus
-a small offset — was fitted by maximising silhouette IoU between the two
-cut-outs and lands at 0.967. The script runs the same `object-fit: cover` maths
-the browser runs on the `<video>`, so at any viewport the plate sits exactly on
-top of the clip's figure at the hand-over.
+`PLATE_TRACK` in `hero-ring.js` is where that cut-out's rectangle sits inside
+the clip's own frame at a given clip time, fitted by maximising silhouette IoU
+between the cut-out and the clip's figure. Only the tail of the pull-back is
+listed, because that is both the only stretch where the two are on screen
+together and the only stretch where a rigid cut-out fits well — 0.96 at 4.2s
+and 4.4s, 0.88 by 3.8s, and it falls apart altogether in the close-up. The
+script runs the same `object-fit: cover` maths the browser runs on the
+`<video>`, so at any viewport the plate sits exactly on top of the clip's
+figure.
 
-That is what makes the swap invisible, and the three steps above are why:
+That is what makes the swap invisible, and the order is why:
 
-1. **swap** — the plate comes up to full opacity *over* the clip. Same pixels,
-   same place, so nothing appears to change. A straight cross-dissolve would
-   not do: two half-opaque copies of the same picture composite to 75%, and the
-   figure would visibly thin out mid-cut.
-2. **clipOut** — only then does the clip go, and it takes only the background
-   with it.
-3. **recede** — only once there is a single copy left does the figure start
-   moving again.
+1. **swap** (0.68 – 0.70) — the plate comes up to full opacity *over* the clip,
+   tracking its framing frame by frame, so this happens while the camera is
+   still moving and the figure never stops. A straight cross-dissolve would not
+   do either: two half-opaque copies of the same picture composite to 75%, and
+   the figure would visibly thin out mid-cut.
+2. **clipOut** (0.70 – 0.74) — only then does the clip go, and it takes only the
+   background with it.
+3. **recede** (0.72 – 0.94) — overlaps the tail of clipOut on purpose. By the
+   time the plate has drifted far enough off the clip's frozen figure to show a
+   ghost, the clip is down to a quarter opacity and falling.
 
 Get that order wrong and a second, smaller figure appears to materialise in
 front of the first one. That was the bug.
 
+### The camera does not stop and start
+
+The recede leaves the lock at exactly the speed the clip's dolly was
+travelling. `CLIP_DOLLY_RATE` is that speed — 0.2104 of the figure's size per
+second of clip time, read off the same fit — and the recede uses a cubic
+Hermite whose initial slope is solved to match it, then coasts to a stop:
+
+```
+relative shrink per unit of scroll
+  pull-back, into the change-over   -2.08
+  recede, out of the change-over    -2.06   ← was -11.6
+  peak, mid-recede                  -5.68
+  arrival                            0
+```
+
+Before this the recede used a plain `easeOutCubic`, which starts at three times
+its average speed. The camera crept back, stopped, then lurched. Matching that
+first derivative is the whole difference between one camera move and two bolted
+together.
+
 **Why the clip stops at 4.4s.** Past about 4.6s it starts assembling its own
 logo ring, which would sit behind ours.
 
-Two supporting details:
+Three supporting details:
 
 * The plate is drawn **above** the vignette and the clip is now drawn above it
   too (`z-index` 1 / 2 / 3 / 4 for ambient clip, vignette, scrub clip, stage).
@@ -95,12 +119,40 @@ Two supporting details:
   alone the glow would blow up to 2.4× through the hand-over. The 210px margin
   in the image exists for the same reason: `mask-image` clips to the element
   box, so a tight crop squared the glow off into a visible rectangle.
+* Cursor lean and idle bob are scaled to zero while the plate is locked to the
+  clip. 14px of parallax is 14px of mismatch.
 
 The push-in at the other end is a dissolve rather than a match cut, and
 deliberately so: a flat plate cannot hold up against an extreme face close-up,
 the foreshortening is nowhere near the same (the same IoU fit only reaches 0.80
 there). The plate blurs through the change-over instead, which is what a camera
 moving that fast would do anyway.
+
+### The ember field
+
+950 embers, and every one of them carries a depth. Depth drives size,
+brightness, how fast it crosses the frame and how far off the ring's horizon it
+sits, so the field reads as a volume in perspective rather than a flat band of
+identical specks.
+
+Anything above a pixel or so is drawn by blitting one of four pre-rendered
+radial-gradient sprites. The soft halo is most of what makes the clip's field
+look dense, painting it per particle with `shadowBlur` would be ruinous, and
+`drawImage` of a small cached canvas costs less than an arc fill — so the field
+got softer and cheaper at once. Below that size no halo is visible anyway and
+the ember is a `fillRect`.
+
+Each ember also belongs to one of the plates. As a plate resolves, the embers
+assigned to it are drawn into it along an `easeInCubic` path — they hang, then
+dart the last stretch — and go out as they land, trailing a short comet tail
+capped at 17px. That cap matters: uncapped, the tail is proportional to how far
+the ember still has to travel, which draws a dash right across the frame. About
+a fifth of the embers keep no plate at all and stay as ambient drift under the
+finished ring.
+
+The field also swells by up to 44% across 0.66 – 0.94. The clip's own field is
+denser than anything worth drawing on a canvas every frame, so when it goes,
+ours has to cover the difference instead of the frame visibly thinning out.
 
 Clip 2 therefore plays **sharp and full-bleed** through the middle act, not as a
 blurred backdrop, and is encoded for that job: **1600×900, CRF 20**, with a

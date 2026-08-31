@@ -336,25 +336,27 @@
   //   zoomIn    cards blow past, camera pushes in to the character's face
   //   face      clip 2's opening close-up, held
   //   pullBack  camera eases out and the stars spread  (clip 2, 1.8s -> 4.4s)
-  //   swap      the plate fades up on top of the clip's figure, both parked
+  //   swap      the plate fades up on the clip's figure, both still moving
   //   clipOut   the clip's background dissolves; the figure does not move
-  //   recede    the camera keeps easing back and the plate shrinks to rest
+  //   recede    the plate carries the same camera move on to its resting size
   //   form      plates condense out of the particles
   //   brand     the logo ring at rest, interactive
   //
-  // swap, clipOut and recede run one after another and never overlap. That is
-  // the whole trick: the figure is only ever handed over while it is standing
-  // still, and it only starts moving again once there is a single copy of it
-  // left on the page.
+  // swap runs inside the tail of pullBack on purpose. The plate tracks the
+  // clip's own framing there (see PLATE_TRACK), so it can fade up while the
+  // camera is still moving and the figure never stops. recede then overlaps
+  // clipOut: by the time the plate has drifted far enough off the clip's
+  // frozen figure to show a ghost, the clip is down to a quarter opacity and
+  // falling. What is left of a hold is 0.02 of the runway.
   var PHASE = {
     services: [0.00, 0.16],
     zoomIn:   [0.16, 0.34],
     face:     [0.34, 0.42],
     pullBack: [0.42, 0.70],
-    swap:     [0.70, 0.74],
-    clipOut:  [0.74, 0.78],
-    recede:   [0.78, 0.93],
-    form:     [0.81, 0.94],
+    swap:     [0.68, 0.70],
+    clipOut:  [0.70, 0.74],
+    recede:   [0.72, 0.94],
+    form:     [0.81, 0.95],
     brand:    [0.94, 1.00]
   };
 
@@ -371,21 +373,28 @@
   // swap is not a dissolve between two figures; it is the same pixels in the
   // same place, and nothing about the figure moves across the cut.
   //
-  // PLATE_FIT is the crop's rectangle inside the clip's own frame, in
-  // fractions of frame width and height, mapped forward from the 5.40s
-  // framing to the 4.40s framing where the swap happens. The forward map
-  // (a 1.230 scale about the frame centre plus a small offset, fitted at
-  // 0.967 silhouette IoU) is already folded in, so these four numbers place
-  // the plate directly on top of the clip's figure at V2.pullEnd:
-  //
-  //   cx, cy  centre of the plate inside the clip frame
-  //   w       plate width as a fraction of the clip frame's width
+  // PLATE_TRACK is where the plate's rectangle sits inside the clip's own
+  // frame at a given clip time, as fractions of frame width and height, fitted
+  // by maximising silhouette IoU between the cut-out and the clip's figure.
+  // Only the tail of the pull-back is listed, because that is the only stretch
+  // where both are on screen together and also the only stretch where a rigid
+  // cut-out fits well: 0.96 at 4.2s and 4.4s, 0.88 by 3.8s, and it falls apart
+  // altogether in the close-up.
   //
   // The clip is object-fit: cover, so the same cover maths converts these to
-  // stage pixels at any viewport. Change the plate image and these change
-  // with it.
-  var PLATE_FIT = { cx: 0.49611, cy: 0.57954, w: 1.00194 };
+  // stage pixels at any viewport.
+  var PLATE_TRACK = [
+    { t: 4.20, cx: 0.49674, cy: 0.60016, w: 1.04470 },
+    { t: 4.40, cx: 0.49525, cy: 0.57748, w: 0.99990 }
+  ];
   var CLIP_AR = 16 / 9;
+
+  // How fast the clip's dolly is shrinking the figure at the hand-over, as a
+  // fraction of its size per second of clip time, read off the same fit
+  // (1.0447 -> 0.9184 across 4.2s -> 4.8s). The recede starts at exactly this
+  // rate, so the camera carries its speed through the change-over instead of
+  // stopping and lurching.
+  var CLIP_DOLLY_RATE = 0.2104;
 
   // Fraction of the plate's height that the face sits at. The push-in scales
   // about this point, so the camera drives into the face and not the chest.
@@ -411,6 +420,23 @@
   function easeInSoft(t) { return Math.pow(t, 1.5); }
   function easeInCubic(t) { return t * t * t; }
   function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  // Cubic Hermite from 0 to 1 that leaves at slope k and arrives at a stop.
+  // Its derivative factorises to (u - 1)(3(k - 2)u - k), which is positive
+  // across [0, 1) for any k in (0, 2), so the move never doubles back.
+  function hermiteOut(u, k) {
+    return k * u + (3 - 2 * k) * u * u + (k - 2) * u * u * u;
+  }
+
+  // The plate's rectangle inside the clip's frame at a given clip time.
+  function trackAt(t) {
+    var a = PLATE_TRACK[0], b = PLATE_TRACK[PLATE_TRACK.length - 1];
+    for (var i = 0; i < PLATE_TRACK.length - 1; i++) {
+      if (t <= PLATE_TRACK[i + 1].t) { a = PLATE_TRACK[i]; b = PLATE_TRACK[i + 1]; break; }
+    }
+    var f = a === b ? 0 : clamp((t - a.t) / (b.t - a.t));
+    return { cx: lerp(a.cx, b.cx, f), cy: lerp(a.cy, b.cy, f), w: lerp(a.w, b.w, f) };
+  }
 
   // Stable pseudo-random in [0,1) for a plate index, so each plate keeps the
   // same arrival time every frame.
@@ -837,31 +863,77 @@
       sizeCanvas();
       for (var i = 0; i < parts.length; i++) seed(parts[i], true);
     }
-    // In the source clip the gold is a wide horizontal river streaming across
-    // the frame at ring height — a dense glittering band, not a radial burst.
-    // Two thirds sit in a tight bright core, the rest spread into the haze.
+    // In the source clip the gold is not a flat band of identical specks: it
+    // is a volume seen in perspective, with big soft embers drifting past the
+    // lens and a fine haze receding behind the figure. So every ember carries a
+    // depth, and depth drives all four things that sell the parallax — size,
+    // brightness, how fast it crosses the frame, and how far off the ring's
+    // horizon it sits.
+    //
+    // Each ember also belongs to a plate. As the plates resolve, the embers
+    // assigned to them are drawn in and go out as they land, so the stars
+    // visibly become the boxes rather than merely fading out near them. About
+    // a fifth keep no slot at all and stay as ambient drift under the finished
+    // ring.
+    var SLOTLESS = 0.22;
+    var TRAIL_MAX = 17;      // px; a comet tail, not a dash across the frame
+
+    // The embers in the clip are out-of-focus points of light with a soft
+    // halo, not hard dots, and that halo is most of what makes the field read
+    // as dense. Painting it per particle with shadowBlur would be ruinous, so
+    // bake four hues into small radial-gradient sprites once and blit those.
+    // drawImage of a cached canvas also costs less than an arc fill, so the
+    // field gets softer and cheaper at the same time.
+    var EMBER_HUES = [24, 31, 39, 47];
+    var SPRITE_R = 24;
+    var sprites = EMBER_HUES.map(function (hue) {
+      var c = document.createElement('canvas');
+      c.width = c.height = SPRITE_R * 2;
+      var g = c.getContext('2d');
+      var rg = g.createRadialGradient(SPRITE_R, SPRITE_R, 0, SPRITE_R, SPRITE_R, SPRITE_R);
+      rg.addColorStop(0.00, 'hsla(' + hue + ', 96%, 88%, 1)');
+      rg.addColorStop(0.16, 'hsla(' + hue + ', 95%, 70%, 0.82)');
+      rg.addColorStop(0.42, 'hsla(' + hue + ', 95%, 57%, 0.24)');
+      rg.addColorStop(1.00, 'hsla(' + hue + ', 95%, 50%, 0)');
+      g.fillStyle = rg;
+      g.fillRect(0, 0, SPRITE_R * 2, SPRITE_R * 2);
+      return c;
+    });
     function seed(p, firstFill) {
-      var core = Math.random() < 0.62;
-      var spread = core ? 0.055 : 0.20;
+      var d = Math.random();
+      d = d * d;                             // most embers far, a few close
+      p.depth = d;
       // sum of two uniforms gives a soft centre-weighted band
       var g = (Math.random() + Math.random() - 1);
-      p.x = -0.08 * cw + Math.random() * cw * 1.16;
-      p.y = ch * 0.60 + g * ch * spread;
+      var spread = lerp(0.045, 0.26, d);
+      p.x = -0.10 * cw + Math.random() * cw * 1.20;
+      p.y = ch * (0.615 - 0.035 * d) + g * ch * spread;
       p.dir = Math.random() < 0.5 ? -1 : 1;
-      p.vx = p.dir * (26 + Math.random() * 86);
-      p.vy = -3 - Math.random() * 12;
+      p.vx = p.dir * lerp(16, 150, d);
+      p.vy = -2 - Math.random() * 14 * (0.4 + d);
       p.life = firstFill ? Math.random() * 2.4 : 0;
-      p.ttl = 2.4 + Math.random() * 3.6;
-      p.size = core ? (0.5 + Math.random() * 1.5) : (0.9 + Math.random() * 2.4);
-      p.hue = 22 + Math.random() * 26;   // amber -> warm gold, as in the clip
+      p.ttl = 2.6 + Math.random() * 3.8;
+      p.size = lerp(0.42, 3.1, d) * (0.7 + Math.random() * 0.6);
+      p.glow = lerp(0.42, 1, d);
+      p.sp = (Math.random() * EMBER_HUES.length) | 0;
+      p.hue = EMBER_HUES[p.sp];              // amber -> warm gold, as in the clip
+      if (p.slot === undefined) {
+        p.slot = Math.random() < SLOTLESS ? -1 : (Math.random() * brandSlots.length) | 0;
+      }
       return p;
     }
     if (ctx) {
       sizeCanvas();
-      for (var i = 0; i < 760; i++) parts.push(seed({}, true));
+      for (var i = 0; i < 950; i++) parts.push(seed({}, true));
       window.addEventListener('resize', sizeCanvas);
       cleanups.push(function () { window.removeEventListener('resize', sizeCanvas); });
     }
+
+    // Where each plate is this frame, and how far along its own arrival it is.
+    // Written by the brand loop, read by the particle loop right after.
+    var slotX = new Float64Array(brandSlots.length);
+    var slotY = new Float64Array(brandSlots.length);
+    var slotT = new Float64Array(brandSlots.length);
 
     function tick(now) {
       raf = requestAnimationFrame(tick);
@@ -924,9 +996,14 @@
         // NB: not named `seed` — that is the particle seeding function in this
         // same scope, and a `var` here would shadow it.
         var jitter = hash01(j);
-        var plateAt = jitter * 0.40;
-        var plateT = easeOutCubic(clamp((settle - plateAt) / 0.30));
-        var logoT = easeOutCubic(clamp((settle - (plateAt + 0.13)) / 0.32));
+        var plateAt = jitter * 0.46;
+        // plateRaw is the un-eased arrival ramp. The plate itself uses the
+        // eased one, but the embers converging on it ride the raw ramp: the
+        // ease front-loads so hard that on the eased curve the whole flight
+        // would be over in a couple of frames.
+        var plateRaw = clamp((settle - plateAt) / 0.38);
+        var plateT = easeOutCubic(plateRaw);
+        var logoT = easeOutCubic(clamp((settle - (plateAt + 0.16)) / 0.36));
 
         // Half-slot phase offset keeps the two orbits from lining up in columns.
         var ang = ((bel._idx + orb.phase) / bel._of) * TAU + s * orb.dir;
@@ -943,36 +1020,30 @@
         if (bel._content) bel._content.style.opacity = logoT.toFixed(3);
         bel.style.pointerEvents = bop > 0.45 ? 'auto' : 'none';
         bel.setAttribute('aria-hidden', bop > 0.45 ? 'false' : 'true');
+
+        // Hand the plate's mark to the embers assigned to it.
+        slotX[j] = bg.x; slotY[j] = bg.y; slotT[j] = plateRaw;
       }
 
       // --- character -------------------------------------------------------
       // One figure, one image, start to finish. The plate carries the push-in,
-      // the clip carries the close-up, and they change places at V2.pullEnd
-      // without the figure moving a pixel: PLATE_FIT puts the plate exactly
-      // where the clip's own figure sits at that frame, because the plate was
-      // cut out of that frame. The plate then rides the camera the rest of the
-      // way back to its resting size.
+      // the clip carries the close-up, and they change places at the tail of
+      // the pull-back without the figure moving a pixel: trackAt() puts the
+      // plate exactly where the clip's own figure sits at that frame, because
+      // the plate was cut out of that figure. The plate then carries the same
+      // camera move on, at the speed the clip was travelling, all the way down
+      // to its resting size.
       if (character) {
-        var chScale = 1, chOp = 1, chTX = 0, chTY = 0, chMask = 1, chBlur = 0;
+        var chScale = 1, chOp = 1, chTX = 0, chTY = 0, chMask = 1, chBlur = 0, chIdle = 1;
         // offsetWidth forces layout, so measure only when the stage resizes.
         if (charBox.w !== w || charBox.h !== h || !charBox.rw) {
           charBox.w = w; charBox.h = h;
           charBox.rw = character.offsetWidth || 0;
-          charBox.rh = charBox.rw * ((character.naturalHeight || 1073) / (character.naturalWidth || 1144));
+          charBox.rh = charBox.rw * ((character.naturalHeight || 1493) / (character.naturalWidth || 1564));
         }
         var restW = charBox.rw, restH = charBox.rh;
         // Resting placement, straight off the CSS: left 50%, top 61%.
         var restCx = w * 0.5, restCy = h * 0.61;
-
-        // Where the clip puts the figure at the hand-over frame, in stage px.
-        // Same object-fit: cover maths the browser runs on the <video>.
-        var fw, fh;
-        if (w / h > CLIP_AR) { fw = w; fh = w / CLIP_AR; }
-        else { fh = h; fw = h * CLIP_AR; }
-        var handW = PLATE_FIT.w * fw;
-        var handCx = (w - fw) / 2 + PLATE_FIT.cx * fw;
-        var handCy = (h - fh) / 2 + PLATE_FIT.cy * fh;
-        var handScale = restW > 0 ? handW / restW : 1;
 
         if (p < PHASE.zoomIn[0]) {
           chScale = 1;
@@ -990,23 +1061,39 @@
           // what a camera moving this fast would do anyway.
           chOp = 1 - clamp(range(z, 0.46, 0.88));
           chBlur = 7 * Math.sin(Math.PI * clamp(range(z, 0.32, 1)));
-        } else if (p < PHASE.swap[0]) {
-          // The clip has the figure. Park the plate on its mark.
-          chScale = handScale;
-          chTX = handCx - restCx;
-          chTY = handCy - restCy;
-          chOp = 0;
-          chMask = 0;
         } else {
-          // Take the figure back, then keep easing out to rest. The plate is
-          // drawn over the clip and comes up to full before the clip starts to
-          // go, so the figure never thins out across the cut.
-          var e = easeOutCubic(range(p, PHASE.recede[0], PHASE.recede[1]));
-          chScale = lerp(handScale, 1, e);
-          chTX = lerp(handCx - restCx, 0, e);
-          chTY = lerp(handCy - restCy, 0, e);
+          // The clip's frame this instant — the same expression the clip's own
+          // scrub uses, so the two cannot drift apart.
+          var tc = p < PHASE.pullBack[0] ? V2.faceEnd
+            : lerp(V2.faceEnd, V2.pullEnd, range(p, PHASE.pullBack[0], PHASE.pullBack[1]));
+          // Cover rect of the clip inside the stage, as the browser lays it out.
+          var fw, fh;
+          if (w / h > CLIP_AR) { fw = w; fh = w / CLIP_AR; }
+          else { fh = h; fw = h * CLIP_AR; }
+          var tr = trackAt(tc);
+          var lockScale = restW > 0 ? (tr.w * fw) / restW : 1;
+          var lockTX = (w - fw) / 2 + tr.cx * fw - restCx;
+          var lockTY = (h - fh) / 2 + tr.cy * fh - restCy;
+
+          // Leave the lock at the speed the clip's dolly was travelling, and
+          // coast to a stop. Matching that first derivative is what stops the
+          // move reading as two moves bolted together.
+          var dP = PHASE.recede[1] - PHASE.recede[0];
+          var ratePerP = CLIP_DOLLY_RATE * (V2.pullEnd - V2.faceEnd) /
+            (PHASE.pullBack[1] - PHASE.pullBack[0]);
+          var k = lockScale > 1.02
+            ? clamp(ratePerP * lockScale * dP / (lockScale - 1), 0.12, 1.6)
+            : 1;
+          var e = hermiteOut(range(p, PHASE.recede[0], PHASE.recede[1]), k);
+
+          chScale = lerp(lockScale, 1, e);
+          chTX = lerp(lockTX, 0, e);
+          chTY = lerp(lockTY, 0, e);
           chOp = clamp(range(p, PHASE.swap[0], PHASE.swap[1]));
           chMask = e;
+          // Cursor lean and idle bob are suppressed while the plate is locked
+          // to the clip — 14px of parallax would be 14px of mismatch.
+          chIdle = e;
         }
 
         // The crop runs off the bottom of the clip's frame, which is right
@@ -1037,10 +1124,11 @@
 
         character.style.transform =
           'translate(-50%, -50%)' +
-          ' translate3d(' + (chTX + state.px * 14).toFixed(1) + 'px, ' +
-            (chTY + Math.sin(now / 2600) * 5).toFixed(1) + 'px, 0)' +
+          ' translate3d(' + (chTX + state.px * 14 * chIdle).toFixed(1) + 'px, ' +
+            (chTY + Math.sin(now / 2600) * 5 * chIdle).toFixed(1) + 'px, 0)' +
           ' scale(' + chScale.toFixed(4) + ')' +
-          ' rotateX(' + (-state.py * 2.6).toFixed(2) + 'deg) rotateY(' + (state.px * 4.2).toFixed(2) + 'deg)';
+          ' rotateX(' + (-state.py * 2.6 * chIdle).toFixed(2) + 'deg)' +
+          ' rotateY(' + (state.px * 4.2 * chIdle).toFixed(2) + 'deg)';
         character.style.opacity = chOp.toFixed(3);
         character.style.zIndex = String(CHARACTER_Z);
       }
@@ -1081,28 +1169,85 @@
       // ---- particles ----
       if (ctx) {
         syncCanvas();
-        // The clip supplies the particle river through the pull-back. Ours
-        // only lifts in to cover the hand-over and then thins away.
-        var rise = range(p, 0.54, 0.64);
+        // The clip supplies the field through the pull-back. Ours lifts in
+        // under it to cover the hand-over, carries the whole spread alone once
+        // the clip has gone, and thins to ambient drift under the finished ring.
+        var rise = range(p, 0.52, 0.64);
         var fall = range(p, 0.94, 1);
-        var intensity = clamp(rise * (1 - fall * 0.90));
+        // The clip's field is denser than anything worth drawing on a canvas
+        // every frame, so when it goes, ours swells to cover the difference
+        // rather than the frame visibly thinning out. Compositing is 'lighter',
+        // so intensity above 1 reads as more field, not as clipping.
+        var swell = 1 + 0.44 * Math.sin(Math.PI * range(p, 0.66, 0.94));
+        var intensity = clamp(rise * swell * (1 - fall * 0.86), 0, 1.5);
         ctx.clearRect(0, 0, cw, ch);
         if (intensity >= 0.01) {
           ctx.globalCompositeOperation = 'lighter';
+          ctx.lineCap = 'round';
           for (var k = 0; k < parts.length; k++) {
             var q = parts[k];
             q.life += dt;
             if (q.life > q.ttl) seed(q);
             q.x += q.vx * dt; q.y += q.vy * dt;
-            q.vy += 2.2 * dt;              // gentle settle, not a fountain
-            q.vx *= 1 - 0.06 * dt;         // keeps the river running
+            q.vy += lerp(0.8, 3.4, q.depth) * dt;   // gentle settle, not a fountain
+            q.vx *= 1 - 0.06 * dt;                  // keeps the river running
             var fade = Math.sin(Math.PI * (q.life / q.ttl));
-            var alpha = fade * intensity * 0.85;
-            if (alpha <= 0.01) continue;
-            ctx.beginPath();
-            ctx.fillStyle = 'hsla(' + q.hue + ',95%,' + (58 + fade * 18) + '%,' + alpha + ')';
-            ctx.arc(q.x, q.y, q.size * (0.55 + fade * 0.75), 0, TAU);
-            ctx.fill();
+            var alpha = fade * intensity * lerp(0.5, 1, q.depth) * 0.9;
+            var px = q.x, py = q.y;
+
+            // Drawn into its plate as that plate resolves. easeInCubic on the
+            // travel makes the ember hang, then dart the last stretch, which
+            // is what makes the ring look like it condensed rather than
+            // cross-faded.
+            var tail = 0;
+            if (q.slot >= 0) {
+              var conv = clamp(slotT[q.slot] * 1.12);
+              if (conv > 0.001) {
+                var e3 = conv * conv * conv;
+                var back = conv > 0.09 ? conv - 0.09 : 0;
+                back = back * back * back;
+                px += (slotX[q.slot] - px) * e3;
+                py += (slotY[q.slot] - py) * e3;
+                tail = e3 - back;              // how far it moved this beat
+                alpha *= 1 - conv;
+              }
+            }
+            if (alpha <= 0.012) continue;
+            var r = q.size * (0.55 + fade * 0.75);
+            var lum = 56 + fade * 20 * q.glow;
+
+            // A short comet tail on the last stretch of the flight. This is the
+            // shot: the field does not fade out near the plates, it is drawn
+            // into them. The tail is capped in pixels — uncapped it is
+            // proportional to how far the ember still has to travel, which on
+            // the outer plates draws a dash right across the frame.
+            if (tail > 0.002) {
+              var dxs = (slotX[q.slot] - q.x) * tail;
+              var dys = (slotY[q.slot] - q.y) * tail;
+              var len = Math.sqrt(dxs * dxs + dys * dys);
+              if (len > 2.5) {
+                if (len > TRAIL_MAX) { dxs *= TRAIL_MAX / len; dys *= TRAIL_MAX / len; }
+                ctx.strokeStyle = 'hsla(' + q.hue + ',95%,' + lum + '%,' + (alpha * 0.5) + ')';
+                ctx.lineWidth = Math.max(0.6, r * 1.05);
+                ctx.beginPath();
+                ctx.moveTo(px - dxs, py - dys);
+                ctx.lineTo(px, py);
+                ctx.stroke();
+              }
+            }
+
+            if (r < 0.8) {
+              // Sub-pixel embers are the bulk of the field and read identically
+              // as squares. No halo is visible at that size anyway, so skip the
+              // blit and spend the frame budget on having more of them.
+              ctx.fillStyle = 'hsla(' + q.hue + ',95%,' + lum + '%,' + alpha + ')';
+              ctx.fillRect(px - r, py - r, r * 2, r * 2);
+            } else {
+              var rad = r * 3.3;
+              ctx.globalAlpha = alpha < 0.8 ? alpha * 1.25 : 1;
+              ctx.drawImage(sprites[q.sp], px - rad, py - rad, rad * 2, rad * 2);
+              ctx.globalAlpha = 1;
+            }
           }
           ctx.globalCompositeOperation = 'source-over';
         }
